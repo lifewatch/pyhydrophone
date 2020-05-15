@@ -17,14 +17,14 @@ Class that represents a SoundTrap acoustic recorder
 
 
 class SoundTrap(Hydrophone):
-    def __init__(self, name, model, serial_number, Vpp, gain_type='High'):
+    def __init__(self, name, model, serial_number, gain_type='High'):
         """ 
         Initialize a SoundTrap instance
         """
         calibration = self._read_calibration(serial_number)
-        sensitivity = calibration['RTI']
-        preamp_gain = calibration[gain_type]
-        super().__init__(name, model, sensitivity, preamp_gain, Vpp)
+        rti_level = calibration['RTI']
+        sensitivity = calibration[gain_type]
+        super().__init__(name, model, sensitivity, preamp_gain=0.0, Vpp=2.0)
 
 
     def read_file_specs(self, xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
@@ -60,11 +60,11 @@ class SoundTrap(Hydrophone):
         return {'type_start': type_start, 'temp':temp, 'fs':fs, 'st_gain':st_gain, 'start_time':start_time, 'stop_time':stop_time}
 
 
-    def get_name_date(self, wavfile_name):
+    def get_name_date(self, file_name):
         """
         Get the data and time of recording from the name of the file 
         """
-        name = wavfile_name.split('.')
+        name = file_name.split('.')
         date_string = name[1]
         date = datetime.strptime(date_string, "%y%m%d%H%M%S")
 

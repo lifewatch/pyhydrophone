@@ -15,7 +15,7 @@ class Hydrophone:
         self.Vpp = Vpp
 
 
-    def get_name_date(self, name):
+    def get_name_date(self, file_name):
         """
         Read the name of the file and according to the hydrophone protocol get the date 
         """

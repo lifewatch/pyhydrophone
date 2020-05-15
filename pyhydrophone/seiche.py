@@ -16,12 +16,13 @@ class Seiche(Hydrophone):
         super().__init__(name, model, sensitivity, preamp_gain, Vpp)
 
 
-    def get_name_date(self, wavfile_name):
+    def get_name_date(self, file_name):
         """
         Get the data and time of recording from the name of the file 
         """
-        name = wavfile_name.split('.')
-        date_string = name[0][5:-1]
+        name = file_name.split('.')
+        start_timestamp = name[0].find('_') + 1
+        date_string = name[0][start_timestamp:-1]
         date = datetime.strptime(date_string, "%Y%m%d_%H%M%S_%f")
 
         return date
