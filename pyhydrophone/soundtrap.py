@@ -189,7 +189,7 @@ class SoundTrapHF(SoundTrap):
         
         clicks_info['wave'] = waves[0:len(clicks_info)]
 
-        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks']/1e6)
+        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks']/1e6, unit='s')
 
         # Append the samplerate as metadata to be able to access it later
         clicks_info.fs = sound_file.samplerate
