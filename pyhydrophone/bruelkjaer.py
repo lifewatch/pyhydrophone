@@ -22,11 +22,24 @@ class BruelKjaer(Hydrophone):
         Init an instance of B&K
         `amplif` is in V/Pa
         """
+        self.amplif = amplif
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
         sensitivity = 10*np.log10((amplif/1e6)**2)
 
         super().__init__(name, model, sensitivity, preamp_gain=0.0, Vpp=2.0)
+    
+
+    def __setattr__(self, name, value):
+        """
+        If the amplif is changed, update the sensitivity 
+        """
+        if name == 'amplif':
+            sensitivity = 10*np.log10((value/1e6)**2)
+            self.__dict__['sensitivity'] = sensitivity
+            self.__dict__['amplif'] = value
+        else: 
+            return super().__setattr__(name, value)
 
 
     def get_name_date(self, file_name):
