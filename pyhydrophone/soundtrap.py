@@ -24,7 +24,7 @@ class SoundTrap(Hydrophone):
         calibration = self._read_calibration(serial_number)
         rti_level = calibration['RTI']
         sensitivity = calibration[gain_type]
-        super().__init__(name, model, sensitivity, preamp_gain=0.0, Vpp=2.0)
+        super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0, Vpp=2.0)
 
 
     def read_file_specs(self, xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):

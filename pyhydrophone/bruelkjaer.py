@@ -17,7 +17,7 @@ Class that represents a Bruel & Kjaer acoustic recorder
 
 
 class BruelKjaer(Hydrophone):
-    def __init__(self, name, model, amplif):
+    def __init__(self, name, model, serial_number, amplif):
         """
         Init an instance of B&K
         `amplif` is in V/Pa
@@ -27,7 +27,7 @@ class BruelKjaer(Hydrophone):
             raise Exception('This amplification is not available!')
         sensitivity = 10*np.log10((amplif/1e6)**2)
 
-        super().__init__(name, model, sensitivity, preamp_gain=0.0, Vpp=2.0)
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain=0.0, Vpp=2.0)
     
 
     def __setattr__(self, name, value):

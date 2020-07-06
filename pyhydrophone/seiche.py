@@ -9,11 +9,11 @@ Class that represents a Seiche acoustic recorder
 
 
 class Seiche(Hydrophone):
-    def __init__(self, name, model, sensitivity, preamp_gain, Vpp):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp):
         """
         Init an instance of Seiche
         """
-        super().__init__(name, model, sensitivity, preamp_gain, Vpp)
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp)
 
 
     def get_name_date(self, file_name):
