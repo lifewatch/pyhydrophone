@@ -99,11 +99,11 @@ class SoundTrap(Hydrophone):
 
 
 class SoundTrapHF(SoundTrap): 
-    def __init__(self, name, model, serial_number, Vpp):
+    def __init__(self, name, model, serial_number, gain_type='High'):
         """
         Init a SoundTrap HF reader
         """
-        super().__init__(name, model, serial_number, Vpp)
+        super().__init__(name, model, serial_number, gain_type)
     
 
     def read_HFfolder(self, main_folder_path, zip_mode=False):
