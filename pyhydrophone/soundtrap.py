@@ -17,13 +17,13 @@ Class that represents a SoundTrap acoustic recorder
 
 
 class SoundTrap(Hydrophone):
-    def __init__(self, name, model, serial_number, gain_type='High'):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High'):
         """ 
         Initialize a SoundTrap instance
         """
         calibration = self._read_calibration(serial_number)
-        rti_level = calibration['RTI']
-        sensitivity = calibration[gain_type]
+        if sensitivity is not None:
+            sensitivity = calibration[gain_type]
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0, Vpp=2.0)
 
 
