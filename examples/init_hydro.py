@@ -11,16 +11,17 @@ def main():
     sensitivity = -199.0
     preamp_gain = 1
     model = 1
+    serial_number = 1000
     name = 'Seiche'
 
-    sei = pyhy.Seiche(name, model, sensitivity, preamp_gain, Vpp)
+    sei = pyhy.Seiche(name, model, serial_number, sensitivity, preamp_gain, Vpp)
 
     # Hydrophone Setup
     model = 1
     name = 'SoundTrap'
     serial_number = 67416073
 
-    st = pyhy.SoundTrap(name, model, serial_number, Vpp)
+    st = pyhy.SoundTrap(name, model, serial_number)
 
     # Hydrophone Setup
     sensitivity = -199.0

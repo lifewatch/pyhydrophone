@@ -22,7 +22,7 @@ class SoundTrap(Hydrophone):
         Initialize a SoundTrap instance
         """
         calibration = self._read_calibration(serial_number)
-        if sensitivity is not None:
+        if sensitivity is None:
             sensitivity = calibration[gain_type]
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0, Vpp=2.0)
 
@@ -60,7 +60,7 @@ class SoundTrap(Hydrophone):
         return {'type_start': type_start, 'temp':temp, 'fs':fs, 'st_gain':st_gain, 'start_time':start_time, 'stop_time':stop_time}
 
 
-    def get_name_date(self, file_name):
+    def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file 
         """
@@ -69,6 +69,22 @@ class SoundTrap(Hydrophone):
         date = datetime.strptime(date_string, "%y%m%d%H%M%S")
 
         return date
+    
+
+    def get_xml_utc_datetime(self, file_name):
+        """
+        Get the UTC datetime from the xml file 
+        """
+        xml_name = file_name.replace('.wav', '.log.xml')
+
+        tree = ET.parse(xml_name)
+        WavFileHandler_list = tree.findall('PROC_EVENT/WavFileHandler')
+        for wfh in WavFileHandler_list: 
+            if 'SamplingStartTimeUTC' in wfh.attrib.keys():
+                utc_datetime = datetime.strptime(wfh.attrib.values(), format='%Y-%m-%dTH:M:S')
+                return utc_datetime
+        
+        return None
 
     
     def _read_calibration(self, serial_number, configfile_path=None):

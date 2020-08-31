@@ -42,7 +42,7 @@ class BruelKjaer(Hydrophone):
             return super().__setattr__(name, value)
 
 
-    def get_name_date(self, file_name):
+    def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file 
         """
