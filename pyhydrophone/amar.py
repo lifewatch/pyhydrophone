@@ -17,7 +17,7 @@ class AmarG3(Hydrophone):
         super().__init__(name, model, serial_number, hydroph_sensitivity, preamp_gain, Vpp)
 
     
-    def get_name_date(self, file_name):
+    def get_name_datetime(self, file_name, utc=False):
         """
         Get the data and time of recording from the name of the file 
         """
@@ -26,6 +26,18 @@ class AmarG3(Hydrophone):
         date = datetime.strptime(date_string, "%Y%m%dT%H%M%S")
 
         return date
+    
+
+    def get_new_name(self, filename, new_date):
+        """
+        Replace the datetime with the appropiate one
+        """
+        old_date = self.get_name_datetime(filename)
+        old_date_name = datetime.strftime(old_date, "%Y%m%dT%H%M%S")
+        new_date_name = datetime.strftime(new_date, "%Y%m%dT%H%M%S")
+        new_filename = filename.replace(old_date_name, new_date_name)
+        
+        return new_filename
 
 
 

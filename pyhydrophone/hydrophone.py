@@ -16,8 +16,15 @@ class Hydrophone:
         self.Vpp = Vpp
 
 
-    def get_name_datetime(self, file_name):
+    def get_name_datetime(self, file_name, utc=False):
         """
         Read the name of the file and according to the hydrophone protocol get the date 
+        """
+        pass
+
+    
+    def get_new_name(self, filename, datetime):
+        """
+        Replace the datetime with the appropiate one
         """
         pass

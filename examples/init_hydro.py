@@ -16,6 +16,7 @@ def main():
 
     sei = pyhy.Seiche(name, model, serial_number, sensitivity, preamp_gain, Vpp)
 
+    sei.get_name_datetime(file_name='SEPAM_20200506_072841_170.wav', utc=False)
     # Hydrophone Setup
     model = 1
     name = 'SoundTrap'
