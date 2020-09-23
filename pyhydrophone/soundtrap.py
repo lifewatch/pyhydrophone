@@ -1,35 +1,57 @@
-import os
-from datetime import datetime
-import configparser
-import xml.etree.ElementTree as ET
-import importlib
-import pandas as pd
-import soundfile as sf
-import zipfile
-import numpy as np
+#!/usr/bin/python
+"""
+Module : soundtrap.py
+Authors : Clea Parcerisas
+Institution : VLIZ (Vlaams Instituut voor de Zee)
+Last Accessed : 9/23/2020
+"""
 
 from pyhydrophone.hydrophone import Hydrophone
 
-
-"""
-Class that represents a SoundTrap acoustic recorder
-"""
+import os
+import zipfile
+import numpy as np
+import configparser
+import pandas as pd
+import soundfile as sf
+from datetime import datetime
+import xml.etree.ElementTree as ET
 
 
 class SoundTrap(Hydrophone):
     def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High'):
         """ 
         Initialize a SoundTrap instance
+        Parameters
+        ----------
+        name: str
+            Name of the acoustic recorder
+        model: str or int
+            Model of the acoustic recorder
+        serial_number : str or int
+            Serial number of the acoustic recorder. It has to match the one in the calibration file
+        sensitivity : float
+            Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
+        gain_type : str
+            'High' or 'Low', depending on the settings of the recorder
         """
         calibration = self._read_calibration(serial_number)
         if sensitivity is None:
             sensitivity = calibration[gain_type]
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0, Vpp=2.0)
 
-
-    def read_file_specs(self, xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
+    @staticmethod
+    def read_file_specs(xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
         """
         Read the specs of the recording from the XML file and save them to the object
+        Parameters
+        ----------
+        xmlfile_path : string or path
+            Path to the xml file
+        last_gain : str
+            Last gain type. 'High' or 'Low', depending on the settings of the recorder
+        date_format : string
+            Format of the datetime in the .log.xml file
         """
         tree = ET.parse(xmlfile_path)
         type_start = tree.find('EVENT/START').get('STATE')
@@ -48,7 +70,7 @@ class SoundTrap(Hydrophone):
 
         # Setup information. Read SoundTrap gain ('HIGH' or 'LOW')
         if type_start == 'NEW':
-            sst_gain = tree.find('EVENT/AUDIO').get('Gain')
+            st_gain = tree.find('EVENT/AUDIO').get('Gain')
         else:
             if last_gain is None:
                 print('Unknown gain if it is reopened and the last gain is not passed!')
@@ -57,15 +79,21 @@ class SoundTrap(Hydrophone):
         start_time = datetime.strptime(sampling_attr['SamplingStartTimeLocal'], date_format)
         stop_time = datetime.strptime(sampling_attr['SamplingStopTimeLocal'], date_format)
 
-        return {'type_start': type_start, 'temp':temp, 'fs':fs, 'st_gain':st_gain, 'start_time':start_time, 'stop_time':stop_time}
-
+        return {'type_start': type_start, 'temp': temp, 'fs': fs, 'st_gain': st_gain,
+                'start_time': start_time, 'stop_time': stop_time}
 
     def get_name_datetime(self, file_name, utc=True):
         """
         Get the data and time of recording from the name of the file 
         Will convert the local in UTC. It assumes the localtime is the one from the computer
+        Parameters
+        ----------
+        file_name : string
+            File name (not path) of the file
+        utc : boolean
+            If set to True, the time of the file will be considered Local and will be changed to utc according to
+            the computer timezone
         """
-        
         name = file_name.split('.')
         date_string = name[1]
         date = datetime.strptime(date_string, "%y%m%d%H%M%S")
@@ -73,13 +101,20 @@ class SoundTrap(Hydrophone):
             timeoff = datetime.utcnow() - datetime.now()
             date += timeoff
         return date
-    
 
-    def get_xml_utc_datetime(self, file_name):
+    @staticmethod
+    def get_xml_utc_datetime(file_path):
         """
-        Get the UTC datetime from the xml file 
+        Get the UTC datetime from the xml file
+        Parameters
+        ----------
+        file_path : str or Path
+
         """
-        xml_name = file_name.replace('.wav', '.log.xml')
+        if type(file_path) == str:
+            xml_name = file_path.replace('.wav', '.log.xml')
+        else:
+            xml_name = file_path.parent.joinpath(file_path.name.replace('.wav', '.log.xml'))
 
         tree = ET.parse(xml_name)
         WavFileHandler_list = tree.findall('PROC_EVENT/WavFileHandler')
@@ -89,11 +124,16 @@ class SoundTrap(Hydrophone):
                 return utc_datetime
         
         return None
-    
 
     def get_new_name(self, filename, new_date):
         """
-        Replace the datetime with the appropiate one
+        Replace the datetime with the appropriate one
+        Parameters
+        ----------
+        filename : string
+            File name (not path) of the file
+        new_date : datetime object
+            New datetime to be replaced in the filename
         """
         old_date = self.get_name_datetime(filename, utc=False)
         old_date_name = datetime.strftime(old_date, "%y%m%d%H%M%S")
@@ -102,13 +142,13 @@ class SoundTrap(Hydrophone):
         
         return new_filename
 
-    
-    def _read_calibration(self, serial_number, configfile_path=None):
+    @staticmethod
+    def _read_calibration(serial_number, configfile_path=None):
         """
         Read the calibration file of the sountrap serial number and store it in a dictionary
         """
-        if configfile_path == None: 
-            file_path = os.path.join('pyhydrophone', 'calibration' ,'soundtrap', str(serial_number)+'.ini')
+        if configfile_path is None:
+            file_path = os.path.join('pyhydrophone', 'calibration', 'soundtrap', str(serial_number)+'.ini')
             parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             configfile_path = os.path.join(parent, file_path)
         config = configparser.ConfigParser()
@@ -120,7 +160,6 @@ class SoundTrap(Hydrophone):
 
         return calibration
     
-    
     def test_calibration(self, signal):
         """
         Test the calibration of the soundtrap
@@ -128,19 +167,38 @@ class SoundTrap(Hydrophone):
         # TO BE IMPLEMENTED
 
 
-
-
 class SoundTrapHF(SoundTrap): 
-    def __init__(self, name, model, serial_number, gain_type='High'):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High'):
         """
         Init a SoundTrap HF reader
+        Parameters
+        ----------
+        name: str
+            Name of the acoustic recorder
+        model: str or int
+            Model of the acoustic recorder
+        serial_number : str or int
+            Serial number of the acoustic recorder. It has to match the one in the calibration file
+        sensitivity : float
+            Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
+        gain_type : str
+            'High' or 'Low', depending on the settings of the recorder
         """
-        super().__init__(name, model, serial_number, gain_type)
-    
+        super().__init__(name, model, serial_number, sensitivity, gain_type)
 
     def read_HFfolder(self, main_folder_path, zip_mode=False):
         """
         Read all the clicks in all the folders
+        Parameters
+        ----------
+        main_folder_path: str
+            Folder containing all the files and/or subfolders to be extracted
+        zip_mode : boolean
+            Set to True if the folders are zipped
+
+        Returns
+        -------
+        A DataFrame with all the clicks of all the folders and a fs metadata parameter with the sampling rate
         """
         clicks = pd.DataFrame()
         for folder_name in os.listdir(main_folder_path):
@@ -149,22 +207,32 @@ class SoundTrapHF(SoundTrap):
             clicks = clicks.append(folder_clicks, ignore_index=True)
         
         # Keep the metadata
-        clicks.fs = folder_clicks.fs 
+        clicks.fs = clicks.fs
 
         return clicks
-
 
     def read_HFclicks(self, folder_path, zip_mode=False):
         """
         Read all the clicks stored in a folder with soundtrap files
+        Parameters
+        ----------
+        folder_path: str
+            Folder containing files to be extracted
+        zip_mode : boolean
+            Set to True if the folders are zipped
+
+        Returns
+        -------
+        A DataFrame with all the clicks and a fs metadata parameter with the sampling rate
         """
         clicks = pd.DataFrame()
         if zip_mode:
-            folder_zip = zipfile.ZipFile(folder_path, 'r', allowZip64=True)
-            files_list = folder_zip.namelist()
+            folder_path = zipfile.ZipFile(folder_path, 'r', allowZip64=True)
+            files_list = folder_path.namelist()
         else:
             files_list = os.listdir(folder_path)
-        
+
+        fs = None
         for file_name in files_list:
             extension = file_name.split(".")[-1]
             if extension == 'wav':
@@ -172,9 +240,9 @@ class SoundTrapHF(SoundTrap):
                 dwv_name = file_name.replace('.wav', '.dwv')
                 xml_name = file_name.replace('.wav', '.log.xml')
                 if zip_mode: 
-                    bcl_path = folder_zip.open(bcl_name)
-                    dwv_path = folder_zip.open(dwv_name)
-                    xml_path = folder_zip.open(xml_name)
+                    bcl_path = folder_path.open(bcl_name)
+                    dwv_path = folder_path.open(dwv_name)
+                    xml_path = folder_path.open(xml_name)
                 else:
                     bcl_path = os.path.join(folder_path, bcl_name)
                     dwv_path = os.path.join(folder_path, dwv_name)
@@ -184,25 +252,36 @@ class SoundTrapHF(SoundTrap):
                     file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
                     clicks = clicks.append(file_clicks, ignore_index=True)
                     fs = file_clicks.fs        
-                except:
-                    print(dwv_path, 'has some problem and can not be read')
+                except UserWarning:
+                    raise Warning(dwv_path, 'has some problem and can not be read')
 
         # Keep the metadata
         clicks.fs = fs
 
         return clicks
 
-
     def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
         """
-        Read the clicks of one soundtrap file 
+        Read the clicks of one soundtrap file
+        Parameters
+        ----------
+        bcl_path : str or Path
+            Path to the bcl file
+        dwv_path : str or Path
+            Path to the dwv file
+        xml_path : str or Path
+            Path to the .log.xml file
+
+        Returns
+        -------
+        A DataFrame with all the parameters from the bcl file + a column with the wave and a column with the datetime
         """
 
         # Read the wav file with all the clicks 
         sound_file = sf.SoundFile(dwv_path, 'r')
 
         # click_len has to be checked automatically
-        click_len = self.read_HFparams(xml_path)
+        click_len = self.read_HFparams(xml_path=xml_path)
 
         # Read the info of clicks
         clicks_info = pd.read_csv(bcl_path)
@@ -228,10 +307,19 @@ class SoundTrapHF(SoundTrap):
 
         return clicks_info
 
-    
-    def read_HFparams(self, xml_path):
+    @staticmethod
+    def read_HFparams(xml_path):
         """
         Return the length of the clips and the time in between
+
+        Parameters
+        ----------
+        xml_path : string or Path
+            Path to the .log.xml file
+
+        Returns
+        -------
+        Clip length in samples (int)
         """
         tree = ET.parse(xml_path)
 
