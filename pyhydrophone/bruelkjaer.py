@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 class BruelKjaer(Hydrophone):
-    def __init__(self, name, model, serial_number, amplif):
+    def __init__(self, name, model, serial_number, amplif, string_format="%y%m%d%H%M%S"):
         """
         Init an instance of B&K
         Parameters
@@ -27,13 +27,15 @@ class BruelKjaer(Hydrophone):
             Serial number of the acoustic recorder
         amplif : float
             Amplification selected in the Nexus in V/Pa
+        string_format : string
+            Format of the datetime string present in the filename
         """
         self.amplif = amplif
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
         sensitivity = 10*np.log10((amplif/1e6)**2)
 
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain=0.0, Vpp=2.0)
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain=0.0, Vpp=2.0, string_format=string_format)
 
     def __setattr__(self, name, value):
         """
@@ -59,8 +61,7 @@ class BruelKjaer(Hydrophone):
         """
         name = file_name.split('.')
         date_string = name[0].split('_')[0]
-        date = datetime.strptime(date_string, "%y%m%d%H%M%S")
-
+        date = super().get_name_datetime(date_string, utc=utc)
         return date
 
     def get_new_name(self, filename, new_date):

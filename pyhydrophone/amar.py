@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 class AmarG3(Hydrophone):
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%dT%H%M%S"):
         """
         Init an instance of AMARG3
         Parameters
@@ -31,8 +31,8 @@ class AmarG3(Hydrophone):
         Vpp : float
             Voltage peak to peak in volts
         """
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp)
-    
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+
     def get_name_datetime(self, file_name, utc=False):
         """
         Get the data and time of recording from the name of the file
@@ -46,8 +46,7 @@ class AmarG3(Hydrophone):
         """
         name = os.path.split(file_name)[1]
         date_string = name.split('.')[-2][-16:-1]
-        date = datetime.strptime(date_string, "%Y%m%dT%H%M%S")
-
+        date = super().get_name_datetime(date_string, utc=utc)
         return date
 
     def get_new_name(self, filename, new_date):

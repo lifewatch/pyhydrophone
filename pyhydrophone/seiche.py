@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class Seiche(Hydrophone):
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
         """
         Init an instance of Seiche
         Parameters
@@ -30,7 +30,7 @@ class Seiche(Hydrophone):
         Vpp : float
             Voltage peak to peak in volts
         """
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp)
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
 
     def get_name_datetime(self, file_name, utc=True):
         """
@@ -46,8 +46,7 @@ class Seiche(Hydrophone):
         name = file_name.split('.')[0]
         start_timestamp = name.find('_') + 1
         date_string = name[start_timestamp::]
-        date = datetime.strptime(date_string, "%Y%m%d_%H%M%S_%f")
-
+        date = super().get_name_datetime(date_string, utc=utc)
         return date
 
     def get_new_name(self, filename, new_date):

@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ET
 
 
 class SoundTrap(Hydrophone):
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High'):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
         """ 
         Initialize a SoundTrap instance
         Parameters
@@ -38,7 +38,8 @@ class SoundTrap(Hydrophone):
         calibration = self._read_calibration(serial_number)
         if sensitivity is None:
             sensitivity = calibration[gain_type]
-        super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0, Vpp=2.0)
+        super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0,
+                         Vpp=2.0, string_format=string_format)
 
     @staticmethod
     def read_file_specs(xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
@@ -96,10 +97,7 @@ class SoundTrap(Hydrophone):
         """
         name = file_name.split('.')
         date_string = name[1]
-        date = datetime.strptime(date_string, "%y%m%d%H%M%S")
-        if utc: 
-            timeoff = datetime.utcnow() - datetime.now()
-            date += timeoff
+        date = super().get_name_datetime(date_string, utc=utc)
         return date
 
     @staticmethod

@@ -5,10 +5,10 @@ Authors : Clea Parcerisas
 Institution : VLIZ (Vlaams Instituut voor de Zee)
 Last Accessed : 9/23/2020
 """
-
+from datetime import datetime
 
 class Hydrophone:
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format):
         """
         Base class Hydrophone initialization
         Parameters
@@ -25,6 +25,8 @@ class Hydrophone:
             Gain of the preamplifier in dB
         Vpp : float
             Voltage peak to peak in volts
+        string_format : string
+            Format of the datetime string present in the filename
         """
         self.name = name
         self.model = model
@@ -32,19 +34,24 @@ class Hydrophone:
         self.sensitivity = sensitivity
         self.preamp_gain = preamp_gain
         self.Vpp = Vpp
+        self.string_format = string_format
 
-    def get_name_datetime(self, file_name, utc=False):
+    def get_name_datetime(self, date_string, utc=False):
         """
         Read the name of the file and according to the hydrophone protocol get the date
         Parameters
         ----------
-        file_name : string
-            File name (not path) of the file
+        date_string : string
+            Datetime in string format
         utc : boolean
             If set to True, the time of the file will be considered Local and will be changed to utc according to
             the computer timezone
         """
-        pass
+        date = datetime.strptime(date_string, self.string_format)
+        if utc:
+            timeoff = datetime.utcnow() - datetime.now()
+            date += timeoff
+        return date
 
     def get_new_name(self, filename, new_date):
         """
