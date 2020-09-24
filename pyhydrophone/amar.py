@@ -30,6 +30,8 @@ class AmarG3(Hydrophone):
             Gain of the preamplifier in dB
         Vpp : float
             Voltage peak to peak in volts
+        string_format : string
+            Format of the datetime string present in the filename
         """
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
 

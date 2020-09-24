@@ -34,6 +34,8 @@ class SoundTrap(Hydrophone):
             Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
         gain_type : str
             'High' or 'Low', depending on the settings of the recorder
+        string_format : string
+            Format of the datetime string present in the filename
         """
         calibration = self._read_calibration(serial_number)
         if sensitivity is None:
@@ -166,7 +168,7 @@ class SoundTrap(Hydrophone):
 
 
 class SoundTrapHF(SoundTrap): 
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High'):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
         """
         Init a SoundTrap HF reader
         Parameters
@@ -181,8 +183,10 @@ class SoundTrapHF(SoundTrap):
             Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
         gain_type : str
             'High' or 'Low', depending on the settings of the recorder
+        string_format : string
+            Format of the datetime string present in the filename
         """
-        super().__init__(name, model, serial_number, sensitivity, gain_type)
+        super().__init__(name, model, serial_number, sensitivity, gain_type, string_format)
 
     def read_HFfolder(self, main_folder_path, zip_mode=False):
         """
