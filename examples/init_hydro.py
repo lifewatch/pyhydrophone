@@ -3,6 +3,7 @@ An example of how to use the classes
 """
 
 import pyhydrophone as pyhy
+import pyhydrophone.soundtrap
 
 Vpp = 2.0
 

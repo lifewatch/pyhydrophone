@@ -4,3 +4,4 @@
 __pycache__
 pyhydrophone.egg-info/
 build/
+docs/build

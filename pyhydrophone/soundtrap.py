@@ -252,8 +252,8 @@ class SoundTrapHF(SoundTrap):
                     file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
                     clicks = clicks.append(file_clicks, ignore_index=True)
                     fs = file_clicks.fs        
-                except UserWarning:
-                    raise Warning(dwv_path, 'has some problem and can not be read')
+                except FileNotFoundError:
+                    print(dwv_path, 'has some problem and can not be read')
 
         # Keep the metadata
         clicks.fs = fs
@@ -292,7 +292,7 @@ class SoundTrapHF(SoundTrap):
         for block in sound_file.blocks(blocksize=click_len):
             waves.append(block.astype(np.float))
         
-        print(dwv_path, len(clicks_info), len(waves))
+        print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
 
         if len(waves) < len(clicks_info):
             # Cut the clicks info if there are not enough snippets
