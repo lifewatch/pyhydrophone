@@ -16,6 +16,7 @@ import pandas as pd
 import soundfile as sf
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import requests
 
 
 class SoundTrap(Hydrophone):
@@ -37,9 +38,22 @@ class SoundTrap(Hydrophone):
         string_format : string
             Format of the datetime string present in the filename
         """
-        calibration = self._read_calibration(serial_number)
         if sensitivity is None:
-            sensitivity = calibration[gain_type]
+            try:
+                query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
+                response = requests.get(query).json()[0]
+                device_id = response['deviceId']
+                query = 'http://oceaninstruments.azurewebsites.net/api/Calibrations/Device/%s' % device_id
+                response = requests.get(query).json()[0]
+                if gain_type == 'High':
+                    sensitivity = response['highFreq']
+                elif gain_type == 'Low':
+                    sensitivity = response['lowFreq']
+                else:
+                    raise Exception('Gain type %s is not implemented!' % gain_type)
+            except ConnectionError:
+                raise Exception('Serial number %s is not in the OceanInstruments database!' % serial_number)
+
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0,
                          Vpp=2.0, string_format=string_format)
 
@@ -141,24 +155,6 @@ class SoundTrap(Hydrophone):
         new_filename = filename.replace(old_date_name, new_date_name)
         
         return new_filename
-
-    @staticmethod
-    def _read_calibration(serial_number, configfile_path=None):
-        """
-        Read the calibration file of the sountrap serial number and store it in a dictionary
-        """
-        if configfile_path is None:
-            file_path = os.path.join('pyhydrophone', 'calibration', 'soundtrap', str(serial_number)+'.ini')
-            parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            configfile_path = os.path.join(parent, file_path)
-        config = configparser.ConfigParser()
-        config.read(configfile_path)
-        high_gain = float(config["End-to-End Calibration"]["High Gain dB"])
-        low_gain = float(config["End-to-End Calibration"]["Low Gain dB"])
-        rti_level = float(config["Calibration Tone"]["RTI Level at 1kHz dB re 1 uPa"])
-        calibration = {"High": high_gain, "Low": low_gain, "RTI": rti_level}
-
-        return calibration
     
     def test_calibration(self, signal):
         """
