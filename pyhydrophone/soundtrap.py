@@ -17,7 +17,7 @@ import soundfile as sf
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import requests
-import tqdm
+from tqdm import tqdm
 
 
 class SoundTrap(Hydrophone):
