@@ -17,6 +17,7 @@ import soundfile as sf
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import requests
+import tqdm
 
 
 class SoundTrap(Hydrophone):
@@ -199,7 +200,7 @@ class SoundTrapHF(SoundTrap):
         A DataFrame with all the clicks of all the folders and a fs metadata parameter with the sampling rate
         """
         clicks = pd.DataFrame()
-        for folder_name in os.listdir(main_folder_path):
+        for folder_name in tqdm(os.listdir(main_folder_path)):
             folder_path = os.path.join(main_folder_path, folder_name)
             folder_clicks = self.read_HFclicks(folder_path, zip_mode=zip_mode)
             clicks = clicks.append(folder_clicks, ignore_index=True)
@@ -231,7 +232,7 @@ class SoundTrapHF(SoundTrap):
             files_list = os.listdir(folder_path)
 
         fs = None
-        for file_name in files_list:
+        for file_name in tqdm(files_list):
             extension = file_name.split(".")[-1]
             if extension == 'wav':
                 bcl_name = file_name.replace('.wav', '.bcl')
