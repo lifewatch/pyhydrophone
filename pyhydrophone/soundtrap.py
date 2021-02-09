@@ -301,6 +301,11 @@ class SoundTrapHF(SoundTrap):
 
         clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks']/1e6, unit='s')
 
+        # Add the filename of each click for future reference
+        clicks_info['filename'] = dwv_path
+        clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
+        clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
+
         # Append the samplerate as metadata to be able to access it later
         clicks_info.fs = sound_file.samplerate
 
