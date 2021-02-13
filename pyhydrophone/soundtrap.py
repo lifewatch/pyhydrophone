@@ -305,6 +305,7 @@ class SoundTrapHF(SoundTrap):
         clicks_info['filename'] = dwv_path
         clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
         clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
+        clicks_info['fs'] = sound_file.samplerate
 
         # Append the samplerate as metadata to be able to access it later
         clicks_info.fs = sound_file.samplerate
