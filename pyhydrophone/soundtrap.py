@@ -19,6 +19,11 @@ import xml.etree.ElementTree as ET
 import requests
 from tqdm import tqdm
 
+try:
+    import numba as nb
+except ImportError:
+    pass
+
 
 REF = 1.0
 
@@ -209,7 +214,7 @@ class SoundTrapHF(SoundTrap):
             clicks = clicks.append(folder_clicks, ignore_index=True)
 
         # Keep the metadata
-        clicks.fs = clicks.fs
+        # clicks.fs = clicks.fs
 
         return clicks
 
@@ -258,7 +263,7 @@ class SoundTrapHF(SoundTrap):
                     print(dwv_path, 'has some problem and can not be read')
 
         # Keep the metadata
-        clicks.fs = fs
+        # clicks.fs = fs
 
         return clicks
 
@@ -294,7 +299,7 @@ class SoundTrapHF(SoundTrap):
 
         for block in sound_file.blocks(blocksize=click_len):
             waves.append(block.astype(np.float))
-            signal_upa = self.to_upa(block)
+            signal_upa = to_upa(block, self.sensitivity, self.preamp_gain, self.Vpp)
             amplitude = amplitude_db(signal_upa)
             amplitudes.append(amplitude)
 
@@ -316,7 +321,7 @@ class SoundTrapHF(SoundTrap):
         clicks_info['fs'] = sound_file.samplerate
 
         # Append the samplerate as metadata to be able to access it later
-        clicks_info.fs = sound_file.samplerate
+        # clicks_info.fs = sound_file.samplerate
 
         return clicks_info
 
@@ -341,26 +346,29 @@ class SoundTrapHF(SoundTrap):
 
         return clip_len
 
-    def to_upa(self, wave):
-        """
-        Return the wave in db
-        Parameters
-        ----------
-        wave
-        sensitivity
-        preamp_gain
-        Vpp
 
-        Returns
-        -------
-        The same wave converted to upa
-        """
-        mv = 10 ** (self.sensitivity / 20.0) * REF
-        ma = 10 ** (self.preamp_gain / 20.0) * REF
-        gain_upa = (self.Vpp / 2.0) / (mv * ma)
-        return wave * gain_upa
+@nb.jit
+def to_upa(wave, sensitivity, preamp_gain, Vpp):
+    """
+    Return the wave in db
+    Parameters
+    ----------
+    wave
+    sensitivity
+    preamp_gain
+    Vpp
+
+    Returns
+    -------
+    The same wave converted to upa
+    """
+    mv = 10 ** (sensitivity / 20.0) * REF
+    ma = 10 ** (preamp_gain / 20.0) * REF
+    gain_upa = (Vpp / 2.0) / (mv * ma)
+    return wave * gain_upa
 
 
+@nb.jit
 def amplitude_db(clip):
     """
     Return the amplitude of the clip
@@ -375,6 +383,7 @@ def amplitude_db(clip):
     return to_db(np.max(np.abs(clip)))
 
 
+@nb.jit
 def to_db(wave):
     """
     Convert the wave to db
