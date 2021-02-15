@@ -20,9 +20,12 @@ import requests
 from tqdm import tqdm
 
 
+REF = 1.0
+
+
 class SoundTrap(Hydrophone):
     def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
-        """ 
+        """
         Initialize a SoundTrap instance
         Parameters
         ----------
@@ -74,7 +77,7 @@ class SoundTrap(Hydrophone):
         tree = ET.parse(xmlfile_path)
         type_start = tree.find('EVENT/START').get('STATE')
 
-        # Metadata colected 
+        # Metadata colected
         temp = float(tree.find('EVENT/TEMPERATURE').text)/100
 
         # WavFileHandler information
@@ -93,7 +96,7 @@ class SoundTrap(Hydrophone):
             if last_gain is None:
                 print('Unknown gain if it is reopened and the last gain is not passed!')
             st_gain = last_gain
-        
+
         start_time = datetime.strptime(sampling_attr['SamplingStartTimeLocal'], date_format)
         stop_time = datetime.strptime(sampling_attr['SamplingStopTimeLocal'], date_format)
 
@@ -102,7 +105,7 @@ class SoundTrap(Hydrophone):
 
     def get_name_datetime(self, file_name, utc=True):
         """
-        Get the data and time of recording from the name of the file 
+        Get the data and time of recording from the name of the file
         Will convert the local in UTC. It assumes the localtime is the one from the computer
         Parameters
         ----------
@@ -133,11 +136,11 @@ class SoundTrap(Hydrophone):
 
         tree = ET.parse(xml_name)
         WavFileHandler_list = tree.findall('PROC_EVENT/WavFileHandler')
-        for wfh in WavFileHandler_list: 
+        for wfh in WavFileHandler_list:
             if 'SamplingStartTimeUTC' in wfh.attrib.keys():
                 utc_datetime = datetime.strptime(wfh.attrib.values(), format='%Y-%m-%dTH:M:S')
                 return utc_datetime
-        
+
         return None
 
     def get_new_name(self, filename, new_date):
@@ -154,9 +157,9 @@ class SoundTrap(Hydrophone):
         old_date_name = datetime.strftime(old_date, "%y%m%d%H%M%S")
         new_date_name = datetime.strftime(new_date, "%y%m%d%H%M%S")
         new_filename = filename.replace(old_date_name, new_date_name)
-        
+
         return new_filename
-    
+
     def test_calibration(self, signal):
         """
         Test the calibration of the soundtrap
@@ -164,7 +167,7 @@ class SoundTrap(Hydrophone):
         # TO BE IMPLEMENTED
 
 
-class SoundTrapHF(SoundTrap): 
+class SoundTrapHF(SoundTrap):
     def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
         """
         Init a SoundTrap HF reader
@@ -204,7 +207,7 @@ class SoundTrapHF(SoundTrap):
             folder_path = os.path.join(main_folder_path, folder_name)
             folder_clicks = self.read_HFclicks(folder_path, zip_mode=zip_mode)
             clicks = clicks.append(folder_clicks, ignore_index=True)
-        
+
         # Keep the metadata
         clicks.fs = clicks.fs
 
@@ -238,7 +241,7 @@ class SoundTrapHF(SoundTrap):
                 bcl_name = file_name.replace('.wav', '.bcl')
                 dwv_name = file_name.replace('.wav', '.dwv')
                 xml_name = file_name.replace('.wav', '.log.xml')
-                if zip_mode: 
+                if zip_mode:
                     bcl_path = folder_path.open(bcl_name)
                     dwv_path = folder_path.open(dwv_name)
                     xml_path = folder_path.open(xml_name)
@@ -250,7 +253,7 @@ class SoundTrapHF(SoundTrap):
                 try:
                     file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
                     clicks = clicks.append(file_clicks, ignore_index=True)
-                    fs = file_clicks.fs        
+                    fs = file_clicks.fs
                 except FileNotFoundError:
                     print(dwv_path, 'has some problem and can not be read')
 
@@ -276,7 +279,7 @@ class SoundTrapHF(SoundTrap):
         A DataFrame with all the parameters from the bcl file + a column with the wave and a column with the datetime
         """
 
-        # Read the wav file with all the clicks 
+        # Read the wav file with all the clicks
         sound_file = sf.SoundFile(dwv_path, 'r')
 
         # click_len has to be checked automatically
@@ -287,17 +290,22 @@ class SoundTrapHF(SoundTrap):
         clicks_info = clicks_info[clicks_info['report'] == 'D']
         clicks_info = clicks_info[clicks_info['state'] == 1]
         waves = []
-        
+        amplitudes = []
+
         for block in sound_file.blocks(blocksize=click_len):
             waves.append(block.astype(np.float))
-        
+            signal_upa = self.to_upa(block)
+            amplitude = amplitude_db(signal_upa)
+            amplitudes.append(amplitude)
+
         print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
 
         if len(waves) < len(clicks_info):
             # Cut the clicks info if there are not enough snippets
             clicks_info = clicks_info.loc[0:len(waves)]
-        
+
         clicks_info['wave'] = waves[0:len(clicks_info)]
+        clicks_info['amplitude'] = amplitudes[0:len(clicks_info)]
 
         clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks']/1e6, unit='s')
 
@@ -332,3 +340,51 @@ class SoundTrapHF(SoundTrap):
         clip_len = int(tree.find('CFG/PREDET').text) + int(tree.find('CFG/POSTDET').text)
 
         return clip_len
+
+    def to_upa(self, wave):
+        """
+        Return the wave in db
+        Parameters
+        ----------
+        wave
+        sensitivity
+        preamp_gain
+        Vpp
+
+        Returns
+        -------
+        The same wave converted to upa
+        """
+        mv = 10 ** (self.sensitivity / 20.0) * REF
+        ma = 10 ** (self.preamp_gain / 20.0) * REF
+        gain_upa = (self.Vpp / 2.0) / (mv * ma)
+        return wave * gain_upa
+
+
+def amplitude_db(clip):
+    """
+    Return the amplitude of the clip
+    Parameters
+    ----------
+    clip : np.array
+        Signal
+    Returns
+    -------
+    The maximum amplitude of the clip in db
+    """
+    return to_db(np.max(np.abs(clip)))
+
+
+def to_db(wave):
+    """
+    Convert the wave to db
+    Parameters
+    ----------
+    wave : np.array
+        wave to compute
+
+    Returns
+    -------
+    wave in db
+    """
+    return 10*np.log10(wave**2)
