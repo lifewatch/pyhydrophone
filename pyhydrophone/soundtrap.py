@@ -18,14 +18,7 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 import requests
 from tqdm import tqdm
-
-try:
-    import numba as nb
-except ImportError:
-    pass
-
-
-REF = 1.0
+import pathlib
 
 
 class SoundTrap(Hydrophone):
@@ -208,13 +201,10 @@ class SoundTrapHF(SoundTrap):
         A DataFrame with all the clicks of all the folders and a fs metadata parameter with the sampling rate
         """
         clicks = pd.DataFrame()
-        for folder_name in tqdm(os.listdir(main_folder_path)):
+        for folder_name in os.listdir(main_folder_path):
             folder_path = os.path.join(main_folder_path, folder_name)
             folder_clicks = self.read_HFclicks(folder_path, zip_mode=zip_mode)
             clicks = clicks.append(folder_clicks, ignore_index=True)
-
-        # Keep the metadata
-        # clicks.fs = clicks.fs
 
         return clicks
 
@@ -239,33 +229,48 @@ class SoundTrapHF(SoundTrap):
         else:
             files_list = os.listdir(folder_path)
 
-        fs = None
-        for file_name in tqdm(files_list):
+        for file_name in files_list:
             extension = file_name.split(".")[-1]
             if extension == 'wav':
-                bcl_name = file_name.replace('.wav', '.bcl')
-                dwv_name = file_name.replace('.wav', '.dwv')
-                xml_name = file_name.replace('.wav', '.log.xml')
-                if zip_mode:
-                    bcl_path = folder_path.open(bcl_name)
-                    dwv_path = folder_path.open(dwv_name)
-                    xml_path = folder_path.open(xml_name)
-                else:
-                    bcl_path = os.path.join(folder_path, bcl_name)
-                    dwv_path = os.path.join(folder_path, dwv_name)
-                    xml_path = os.path.join(folder_path, xml_name)
-
-                try:
-                    file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
-                    clicks = clicks.append(file_clicks, ignore_index=True)
-                    fs = file_clicks.fs
-                except FileNotFoundError:
-                    print(dwv_path, 'has some problem and can not be read')
-
-        # Keep the metadata
-        # clicks.fs = fs
+                clicks_file = self.read_HFclicks_file(file_name)
+                clicks = clicks.append(clicks_file)
 
         return clicks
+
+    def read_HFclicks_file(self, wavfile_path, zip_mode=False):
+        """
+        Read all the clicks stored in a folder with soundtrap files
+        Parameters
+        ----------
+        wavfile_path: str
+            Wav file path
+        zip_mode : boolean
+            Set to True if the folders are zipped
+
+        Returns
+        -------
+        A DataFrame with all the clicks and a fs metadata parameter with the sampling rate
+        """
+        if not isinstance(wavfile_path, pathlib.Path):
+            wavfile_path = pathlib.Path(wavfile_path)
+        bcl_name = wavfile_path.name.replace('.wav', '.bcl')
+        dwv_name = wavfile_path.name.replace('.wav', '.dwv')
+        xml_name = wavfile_path.name.replace('.wav', '.log.xml')
+        if zip_mode:
+            bcl_path = wavfile_path.parent.open(bcl_name)
+            dwv_path = wavfile_path.parent.open(dwv_name)
+            xml_path = wavfile_path.parent.open(xml_name)
+        else:
+            bcl_path = os.path.join(wavfile_path.parent, bcl_name)
+            dwv_path = os.path.join(wavfile_path.parent, dwv_name)
+            xml_path = os.path.join(wavfile_path.parent, xml_name)
+
+        try:
+            file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
+        except FileNotFoundError:
+            print(dwv_path, 'has some problem and can not be read')
+
+        return file_clicks
 
     def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
         """
@@ -295,13 +300,9 @@ class SoundTrapHF(SoundTrap):
         clicks_info = clicks_info[clicks_info['report'] == 'D']
         clicks_info = clicks_info[clicks_info['state'] == 1]
         waves = []
-        amplitudes = []
 
         for block in sound_file.blocks(blocksize=click_len):
             waves.append(block.astype(np.float))
-            signal_upa = to_upa(block, self.sensitivity, self.preamp_gain, self.Vpp)
-            amplitude = amplitude_db(signal_upa)
-            amplitudes.append(amplitude)
 
         print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
 
@@ -310,20 +311,14 @@ class SoundTrapHF(SoundTrap):
             clicks_info = clicks_info.loc[0:len(waves)]
 
         clicks_info['wave'] = waves[0:len(clicks_info)]
-        clicks_info['amplitude'] = amplitudes[0:len(clicks_info)]
-
-        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks']/1e6, unit='s')
-
-        # Add the filename of each click for future reference
         clicks_info['filename'] = dwv_path
         clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
         clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
+        clicks_info['duration'] = click_len
         clicks_info['fs'] = sound_file.samplerate
+        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks'] / 1e6, unit='s')
 
-        # Append the samplerate as metadata to be able to access it later
-        # clicks_info.fs = sound_file.samplerate
-
-        return clicks_info
+        return clicks_info.reset_index(drop=True)
 
     @staticmethod
     def read_HFparams(xml_path):
@@ -345,55 +340,3 @@ class SoundTrapHF(SoundTrap):
         clip_len = int(tree.find('CFG/PREDET').text) + int(tree.find('CFG/POSTDET').text)
 
         return clip_len
-
-
-@nb.jit
-def to_upa(wave, sensitivity, preamp_gain, Vpp):
-    """
-    Return the wave in db
-    Parameters
-    ----------
-    wave
-    sensitivity
-    preamp_gain
-    Vpp
-
-    Returns
-    -------
-    The same wave converted to upa
-    """
-    mv = 10 ** (sensitivity / 20.0) * REF
-    ma = 10 ** (preamp_gain / 20.0) * REF
-    gain_upa = (Vpp / 2.0) / (mv * ma)
-    return wave * gain_upa
-
-
-@nb.jit
-def amplitude_db(clip):
-    """
-    Return the amplitude of the clip
-    Parameters
-    ----------
-    clip : np.array
-        Signal
-    Returns
-    -------
-    The maximum amplitude of the clip in db
-    """
-    return to_db(np.max(np.abs(clip)))
-
-
-@nb.jit
-def to_db(wave):
-    """
-    Convert the wave to db
-    Parameters
-    ----------
-    wave : np.array
-        wave to compute
-
-    Returns
-    -------
-    wave in db
-    """
-    return 10*np.log10(wave**2)
