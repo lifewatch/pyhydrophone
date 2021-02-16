@@ -46,9 +46,9 @@ class SoundTrap(Hydrophone):
                 query = 'http://oceaninstruments.azurewebsites.net/api/Calibrations/Device/%s' % device_id
                 response = requests.get(query).json()[0]
                 if gain_type == 'High':
-                    sensitivity = response['highFreq']
+                    sensitivity = -response['highFreq']
                 elif gain_type == 'Low':
-                    sensitivity = response['lowFreq']
+                    sensitivity = -response['lowFreq']
                 else:
                     raise Exception('Gain type %s is not implemented!' % gain_type)
             except ConnectionError:
