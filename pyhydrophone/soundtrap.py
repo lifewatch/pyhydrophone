@@ -11,13 +11,11 @@ from pyhydrophone.hydrophone import Hydrophone
 import os
 import zipfile
 import numpy as np
-import configparser
 import pandas as pd
 import soundfile as sf
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import requests
-from tqdm import tqdm
 import pathlib
 
 

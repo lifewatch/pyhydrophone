@@ -1,9 +1,6 @@
-cffi==1.13.2
-numpy==1.18.1
 pandas==1.0.3
-pycparser==2.19
-python-dateutil==2.8.1
-pytz==2019.3
+pip-chill==1.0.1
+pyhydrophone==0.1
+requests==2.25.1
 scipy==1.4.1
-six==1.14.0
-SoundFile==0.10.3.post1
+soundfile==0.10.3.post1
