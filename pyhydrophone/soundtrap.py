@@ -255,9 +255,10 @@ class SoundTrapHF(SoundTrap):
         dwv_name = wavfile_path.name.replace('.wav', '.dwv')
         xml_name = wavfile_path.name.replace('.wav', '.log.xml')
         if zip_mode:
-            bcl_path = wavfile_path.parent.open(bcl_name)
-            dwv_path = wavfile_path.parent.open(dwv_name)
-            xml_path = wavfile_path.parent.open(xml_name)
+            zip_file = zipfile.ZipFile(wavfile_path.parent, 'r', allowZip64=True)
+            bcl_path = zip_file.open(bcl_name)
+            dwv_path = zip_file.open(dwv_name)
+            xml_path = zip_file.open(xml_name)
         else:
             bcl_path = os.path.join(wavfile_path.parent, bcl_name)
             dwv_path = os.path.join(wavfile_path.parent, dwv_name)
