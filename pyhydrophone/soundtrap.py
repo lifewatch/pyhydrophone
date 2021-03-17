@@ -310,7 +310,7 @@ class SoundTrapHF(SoundTrap):
             clicks_info = clicks_info.loc[0:len(waves)]
 
         clicks_info['wave'] = waves[0:len(clicks_info)]
-        clicks_info['filename'] = dwv_path
+        clicks_info['filename'] = str(dwv_path)
         clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
         clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
         clicks_info['duration'] = click_len
