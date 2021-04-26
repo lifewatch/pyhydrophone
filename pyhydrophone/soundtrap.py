@@ -228,10 +228,15 @@ class SoundTrapHF(SoundTrap):
             files_list = os.listdir(folder_path)
 
         for file_name in files_list:
-            extension = file_name.split(".")[-1]
-            if extension == 'wav':
-                clicks_file = self.read_HFclicks_file(file_name)
-                clicks = clicks.append(clicks_file)
+            if zip_mode:
+                if file_name.split('.')[-1] == 'wav':
+                    file_name = pathlib.Path(folder_path.filename).joinpath(file_name)
+                    clicks_file = self.read_HFclicks_file(file_name, zip_mode)
+                    clicks = clicks.append(clicks_file)
+            else:
+                if file_name.split(".")[-1] == 'wav':
+                    clicks_file = self.read_HFclicks_file(file_name, zip_mode)
+                    clicks = clicks.append(clicks_file)
 
         return clicks
 
@@ -269,6 +274,7 @@ class SoundTrapHF(SoundTrap):
         except FileNotFoundError:
             print(dwv_path, 'has some problem and can not be read')
 
+        file_clicks['filename'] = str(wavfile_path)
         return file_clicks
 
     def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
@@ -310,7 +316,6 @@ class SoundTrapHF(SoundTrap):
             clicks_info = clicks_info.loc[0:len(waves)]
 
         clicks_info['wave'] = waves[0:len(clicks_info)]
-        clicks_info['filename'] = str(dwv_path)
         clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
         clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
         clicks_info['duration'] = click_len
