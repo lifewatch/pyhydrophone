@@ -273,8 +273,9 @@ class SoundTrapHF(SoundTrap):
             file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
         except FileNotFoundError:
             print(dwv_path, 'has some problem and can not be read')
-
-        file_clicks['filename'] = str(wavfile_path)
+        if zip_mode:
+            dwv_path = wavfile_path.parent.join(bcl_name)
+        file_clicks['filename'] = str(dwv_path)
         return file_clicks
 
     def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
