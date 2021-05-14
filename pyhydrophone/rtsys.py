@@ -1,19 +1,29 @@
 #!/usr/bin/python
 """
-Module : mte.py
+
+=======
+Module : seiche.py
 Authors : Clea Parcerisas
 Institution : VLIZ (Vlaams Instituut voor de Zee)
-Last Accessed : 25/01/2021
+Last Accessed : 9/23/2020
+>>>>>>> 4dbb56f24caac07d983b69479e57cb57cfb894fb
 """
 
 from pyhydrophone.hydrophone import Hydrophone
 
 from datetime import datetime
-import os
+<<<<<<< HEAD
+
+try:
+    import matplotlib.pyplot as plt
+    import pandas as pd
+except ModuleNotFoundError:
+    pass
 
 
-class RTsys(Hydrophone):
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%y%m%d_%H%M%S"):
+class RTSys(Hydrophone):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
+
         """
         Init an instance of Seiche
         Parameters
@@ -46,14 +56,43 @@ class RTsys(Hydrophone):
             If set to True, the time of the file will be considered Local and will be changed to utc according to
             the computer timezone
         """
-        # Get the the creation time of the file
-        # date = datetime.utcfromtimestamp(os.stat(file_name).st_ctime)
-        # return date
-        name = file_name.split('.')
-        name = name[0].split('_')
-        ymd = name[1].split('-') + name[2].split('-')
-        date_string = ymd[0] + ymd[1] + ymd[2] + '_' +  ymd[3] + ymd[4] + ymd[5]
+        name = file_name.split('.')[0]
+        start_timestamp = name.find('_') + 1
+        date_string = name[start_timestamp::]
         date = super().get_name_datetime(date_string, utc=utc)
         return date
 
-    
+    def get_new_name(self, filename, new_date):
+        """
+        Replace the datetime with the appropriate one
+        Parameters
+        ----------
+        filename : string
+            File name (not path) of the file
+        new_date : datetime object
+            New datetime to be replaced in the filename
+        """
+        old_date = self.get_name_datetime(filename)
+        old_date_name = datetime.strftime(old_date, "%Y%m%d_%H%M%S_%f")
+        new_date_name = datetime.strftime(new_date, "%Y%m%d_%H%M%S_%f")
+        new_filename = filename.replace(old_date_name, new_date_name)
+
+        return new_filename
+
+    @staticmethod
+    def plot_consumption(board_file_path):
+        """
+        Plot the consumption evolution from the board_file_path
+        Parameters
+        ----------
+        board_file_path : str or Path
+        """
+        board_info = pd.read_csv(board_file_path, delimiter=';', names=['id', 'T', 'V', 'I', 'P'],
+                                 usecols=[0, 1, 2, 3, 4])
+        board_info['T'] = board_info['T'].str.replace('T:', '').astype(float)
+        board_info['V'] = board_info['V'].str.replace('V:', '').astype(float)
+        board_info['I'] = board_info['I'].str.replace('I:', '').astype(float)
+        board_info['P'] = board_info['P'].str.replace('P:', '').astype(float)
+        board_info.plot(y=['V', 'P'])
+        plt.show()
+        
