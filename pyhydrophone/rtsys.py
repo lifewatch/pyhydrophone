@@ -12,7 +12,7 @@ Last Accessed : 9/23/2020
 from pyhydrophone.hydrophone import Hydrophone
 
 from datetime import datetime
-<<<<<<< HEAD
+
 
 try:
     import matplotlib.pyplot as plt
