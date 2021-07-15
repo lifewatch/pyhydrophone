@@ -16,7 +16,7 @@ from datetime import datetime
 class BruelKjaer(Hydrophone):
     def __init__(self, name, model, serial_number, amplif, Vpp=2.0, string_format="%y%m%d%H%M%S"):
         """
-        Init an instance of B&K
+        Init an instance of B&K Nexus
         Parameters
         ----------
         name: str
@@ -32,22 +32,27 @@ class BruelKjaer(Hydrophone):
         string_format: string
             Format of the datetime string present in the filename
         """
-        self.amplif = amplif
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
-        sensitivity = 10*np.log10((amplif/1e9)**2)
+        preamp_gain = 10*np.log10((amplif/1e9)**2)
+        self.amplif = amplif
+        # sensitivity = 10*np.log10((amplif/1e9)**2)
+        # sensitivity is set to 0 because it is already considered in the amplification process of Nexus
 
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain=0.0, Vpp=Vpp, string_format=string_format)
+        super().__init__(name, model, serial_number, sensitivity=0.0, preamp_gain=preamp_gain,
+                         Vpp=Vpp, string_format=string_format)
 
     def __setattr__(self, name, value):
         """
-        If the amplif is changed, update the sensitivity 
+        If the amplif is changed, update the sensitivity
         """
         if name == 'amplif':
-            sensitivity = 10*np.log10((value/1e6)**2)
-            self.__dict__['sensitivity'] = sensitivity
+            self.__dict__['preamp_gain'] = 10*np.log10((value/1e9)**2)
             self.__dict__['amplif'] = value
-        else: 
+        elif name == 'preamp_gain':
+            self.__dict__['preamp_gain'] = value
+            self.__dict__['amplif'] = 10 ** (value / 20.0) * 1e9
+        else:
             return super().__setattr__(name, value)
 
     def get_name_datetime(self, file_name, utc=False):
@@ -83,15 +88,13 @@ class BruelKjaer(Hydrophone):
         
         return new_filename
     
-    def update_calibration(self, ref_file_path):
+    def update_calibration(self, ref_signal):
         """
-        Update the sensitivity
+        Update the calibration
         Parameters
         ----------
-        ref_file_path : str or Path
-            File path to the reference file to update the sensitivity according to the calibration tone
+        ref_signal : str or Path
+            File path to the reference file to update the Vpp according to the calibration tone
         """
-        ref_file, _ = sf.read(ref_file_path)
-        ref_val = 10*np.log10((ref_file**2).mean())
-
-        self.sensitivity = self.sensitivity + ref_val
+        ref_val = (ref_signal ** 2).mean()
+        self.Vpp = (self.amplif / ref_val) * 2
