@@ -63,4 +63,14 @@ class Hydrophone:
         new_date : datetime object
             New datetime to be replaced in the filename
         """
-        pass
+        raise Exception('get_new_name should be declared in the subclass %s' % self.__name__)
+
+    def update_calibration(self, ref_signal):
+        """
+        Update the calibration
+        Parameters
+        ----------
+        ref_signal : str or Path
+            File path to the reference file to update the Vpp according to the calibration tone
+        """
+        raise Exception('update_calibration should be declared in the subclass %s' % self.__name__)
