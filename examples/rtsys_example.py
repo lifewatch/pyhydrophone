@@ -24,5 +24,4 @@ if __name__ == '__main__':
     parser.add_argument('board_path', type=str, nargs='+', help='Path to the mission file')
     args = parser.parse_args()
     board_path = args.board_path[1]
-
     main(board_path)

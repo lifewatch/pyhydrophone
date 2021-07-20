@@ -1,9 +1,9 @@
 #!/usr/bin/python
 """
-Module : seiche.py
+Module : rtsys.py
 Authors : Clea Parcerisas
 Institution : VLIZ (Vlaams Instituut voor de Zee)
-Last Accessed : 9/23/2020
+Last Accessed : 07/20/2021
 """
 
 from pyhydrophone.hydrophone import Hydrophone
@@ -103,3 +103,4 @@ class RTSys(Hydrophone):
         -------
 
         """
+
