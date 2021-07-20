@@ -34,12 +34,10 @@ class BruelKjaer(Hydrophone):
         """
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
-        preamp_gain = 10*np.log10((amplif/1e6)**2)
         self.amplif = amplif
-        # sensitivity = 10*np.log10((amplif/1e9)**2)
         # sensitivity is set to 0 because it is already considered in the amplification process of Nexus
 
-        super().__init__(name, model, serial_number, sensitivity=0.0, preamp_gain=preamp_gain,
+        super().__init__(name, model, serial_number, sensitivity=self.sensitivity, preamp_gain=0.0,
                          Vpp=Vpp, string_format=string_format)
 
     def __setattr__(self, name, value):
@@ -47,11 +45,8 @@ class BruelKjaer(Hydrophone):
         If the amplif is changed, update the sensitivity
         """
         if name == 'amplif':
-            self.__dict__['preamp_gain'] = 10*np.log10((value/1e6)**2)
+            self.__dict__['sensitivity'] = 10*np.log10((value/1e6)**2)
             self.__dict__['amplif'] = value
-        elif name == 'preamp_gain':
-            self.__dict__['preamp_gain'] = value
-            self.__dict__['amplif'] = 10 ** (value / 20.0) * 1e6
         else:
             return super().__setattr__(name, value)
 
@@ -97,4 +92,4 @@ class BruelKjaer(Hydrophone):
             File path to the reference file to update the Vpp according to the calibration tone
         """
         ref_val = np.sqrt((ref_signal ** 2).mean())
-        self.Vpp = (self.amplif / ref_val) * 2
+        self.Vpp = 2.0/ref_val

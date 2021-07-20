@@ -90,3 +90,16 @@ class RTSys(Hydrophone):
         board_info['P'] = board_info['P'].str.replace('P:', '').astype(float)
         board_info.plot(y=['V', 'P'])
         plt.show()
+
+    @staticmethod
+    def compute_consumption(mission_file_path):
+        """
+        Calculate the total engery consumption of the mission
+        Parameters
+        ----------
+        mission_file_path
+
+        Returns
+        -------
+
+        """

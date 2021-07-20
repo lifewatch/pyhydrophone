@@ -1,12 +1,10 @@
 """
 An example of how to use the class RTSys
 """
-
+import argparse
 import pyhydrophone as pyhy
 
 Vpp = 2.0
-
-board_file_path = '//archive/other_platforms/rtsys/2021/CPower_Acoustic_Telemetry/card/records/210125/board_2021-01-25_12-20-17.txt'
 
 
 def main(filepath):
@@ -22,4 +20,9 @@ def main(filepath):
 
 
 if __name__ == '__main__':
-    main(board_file_path)
+    parser = argparse.ArgumentParser(description='Plot the power consumption of the mission file')
+    parser.add_argument('board_path', type=str, nargs='+', help='Path to the mission file')
+    args = parser.parse_args()
+    board_path = args.board_path[1]
+
+    main(board_path)
