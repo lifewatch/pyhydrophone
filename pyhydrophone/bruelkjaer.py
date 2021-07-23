@@ -92,4 +92,5 @@ class BruelKjaer(Hydrophone):
             File path to the reference file to update the Vpp according to the calibration tone
         """
         ref_val = np.sqrt((ref_signal ** 2).mean())
-        self.Vpp = 2.0/ref_val
+        #self.Vpp = 2.0/ref_val
+        self.sensitivity = self.sensitivity + 10 * np.log10(ref_val**2)
