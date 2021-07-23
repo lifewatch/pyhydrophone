@@ -8,9 +8,10 @@ Last Accessed : 9/23/2020
 
 from pyhydrophone.hydrophone import Hydrophone
 
+import os
 import numpy as np
 import soundfile as sf
-from datetime import datetime
+import datetime
 
 
 class BruelKjaer(Hydrophone):
@@ -77,11 +78,35 @@ class BruelKjaer(Hydrophone):
             New datetime to be replaced in the filename
         """
         old_date = self.get_name_datetime(filename)
-        old_date_name = datetime.strftime(old_date, "%y%m%d%H%M%S")
-        new_date_name = datetime.strftime(new_date, "%y%m%d%H%M%S")
+        old_date_name = datetime.datetime.strftime(old_date, self.string_format)
+        new_date_name = datetime.datetime.strftime(new_date, self.string_format)
         new_filename = filename.replace(old_date_name, new_date_name)
         
         return new_filename
+
+    def read_start_time_metadata(self, file_path, utc=False):
+        """
+        Return the starting time of the file by getting the last modification minus the duration of the file
+        Parameters
+        ----------
+        file_path : string or Path
+            Path to the file to read the information from
+        utc : boolean
+            If set to True, the time of the file will be considered Local and will be changed to utc according to
+            the computer timezone
+
+        Returns
+        -------
+        Datetime, starting moment of the file
+        """
+        modif_timestamp = os.path.getmtime(file_path)
+        modif_datetime = datetime.datetime.fromtimestamp(modif_timestamp)
+        duration = datetime.timedelta(seconds=sf.info(file_path).duration)
+        start_time = modif_datetime - duration
+        if utc:
+            timeoff = datetime.datetime.utcnow() - datetime.datetime.now()
+            start_time += timeoff
+        return start_time
     
     def update_calibration(self, ref_signal):
         """
