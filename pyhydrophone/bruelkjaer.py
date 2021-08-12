@@ -15,7 +15,7 @@ import datetime
 
 
 class BruelKjaer(Hydrophone):
-    def __init__(self, name, model, serial_number, amplif, Vpp=2.0, string_format="%y%m%d%H%M%S"):
+    def __init__(self, name, model, serial_number, amplif, sensitivity, Vpp=2.0, string_format="%y%m%d%H%M%S"):
         """
         Init an instance of B&K Nexus
         Parameters
@@ -28,6 +28,8 @@ class BruelKjaer(Hydrophone):
             Serial number of the acoustic recorder
         amplif: float
             Amplification selected in the Nexus in V/Pa
+        sensitivity: float
+            Sensitivity of the TRANSDUCER in pC / Pa
         Vpp: float
             Volts peak to peak
         string_format: string
@@ -36,17 +38,19 @@ class BruelKjaer(Hydrophone):
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
         self.amplif = amplif
-        # sensitivity is set to 0 because it is already considered in the amplification process of Nexus
+        preamp_gain = 10 * np.log10((amplif/1e6)**2)
+        self.hydophone_sens = sensitivity
 
-        super().__init__(name, model, serial_number, sensitivity=self.sensitivity, preamp_gain=0.0,
+        # sensitivity is set to 0 because it is already considered in the amplification process of Nexus
+        super().__init__(name, model, serial_number, sensitivity=0.0, preamp_gain=preamp_gain,
                          Vpp=Vpp, string_format=string_format)
 
     def __setattr__(self, name, value):
         """
-        If the amplif is changed, update the sensitivity
+        If the amplif is changed, update the pream_gain
         """
         if name == 'amplif':
-            self.__dict__['sensitivity'] = 10*np.log10((value/1e6)**2)
+            self.__dict__['preamp_gain'] = 10*np.log10((value/1e6)**2)
             self.__dict__['amplif'] = value
         else:
             return super().__setattr__(name, value)
@@ -117,5 +121,5 @@ class BruelKjaer(Hydrophone):
             File path to the reference file to update the Vpp according to the calibration tone
         """
         ref_val = np.sqrt((ref_signal ** 2).mean())
-        #self.Vpp = 2.0/ref_val
-        self.sensitivity = self.sensitivity + 10 * np.log10(ref_val**2)
+        total_gain = self.amplif * 1e3 / self.hydophone_sens
+        self.Vpp = 2 * total_gain / ref_val / 10
