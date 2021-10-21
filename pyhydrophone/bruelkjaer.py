@@ -15,9 +15,10 @@ import datetime
 
 
 class BruelKjaer(Hydrophone):
-    def __init__(self, name, model, serial_number, amplif, sensitivity, Vpp=2.0, string_format="%y%m%d%H%M%S"):
+    def __init__(self, name, model, serial_number, amplif, Vpp=2.0, string_format="%y%m%d%H%M%S", type_signal='ref'):
         """
-        Init an instance of B&K Nexus
+        Init an instance of B&K Nexus.
+        Check well the Vpp in case you don't have a reference signal! Specially of the recorder used.
         Parameters
         ----------
         name: str
@@ -28,21 +29,21 @@ class BruelKjaer(Hydrophone):
             Serial number of the acoustic recorder
         amplif: float
             Amplification selected in the Nexus in V/Pa
-        sensitivity: float
-            Sensitivity of the TRANSDUCER in pC / Pa
         Vpp: float
             Volts peak to peak
         string_format: string
             Format of the datetime string present in the filename
+        type_signal : str
+            Can be 'ref' or 'test'
         """
         if amplif not in [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0]:
             raise Exception('This amplification is not available!')
         self.amplif = amplif
-        preamp_gain = 10 * np.log10((amplif/1e6)**2)
-        self.hydophone_sens = sensitivity
-
-        # sensitivity is set to 0 because it is already considered in the amplification process of Nexus
-        super().__init__(name, model, serial_number, sensitivity=0.0, preamp_gain=preamp_gain,
+        self.type_signal = type_signal
+        sensitivity = 10 * np.log10((self.amplif/1e6)**2)
+        
+        # preamp is considered 0 beacause all the conversion is done as an end-to-end in the reference signal
+        super().__init__(name, model, serial_number, sensitivity=sensitivity, preamp_gain=0.0,
                          Vpp=Vpp, string_format=string_format)
 
     def __setattr__(self, name, value):
@@ -50,10 +51,11 @@ class BruelKjaer(Hydrophone):
         If the amplif is changed, update the pream_gain
         """
         if name == 'amplif':
-            self.__dict__['preamp_gain'] = 10*np.log10((value/1e6)**2)
-            self.__dict__['amplif'] = value
-        else:
-            return super().__setattr__(name, value)
+            self.__dict__['sensitivity'] = 10 * np.log10((value/1e6)**2)
+        if name == 'type_signal':
+            if value not in ['ref', 'test']:
+                raise Exception('%s is not an option in Nexus!' % value)
+        return super().__setattr__(name, value)
 
     def get_name_datetime(self, file_name, utc=False):
         """
@@ -120,6 +122,12 @@ class BruelKjaer(Hydrophone):
         ref_signal : str or Path
             File path to the reference file to update the Vpp according to the calibration tone
         """
-        ref_val = np.sqrt((ref_signal ** 2).mean())
-        total_gain = self.amplif * 1e3 / self.hydophone_sens
-        self.Vpp = 2 * total_gain / ref_val / 10
+        ref_wav = np.sqrt((ref_signal ** 2).mean())
+        # Sensitivity is in negative values!
+        if self.type_signal == 'ref':
+            # The signal is then 1 V
+            ref_v = 1
+        else:
+            # The signal is the amplification value
+            ref_v = 100 * self.amplif * np.sqrt(2)
+        self.sensitivity = 10 * np.log10((self.amplif / 1e6) ** 2) + 10*np.log10((ref_wav / ref_v)**2)
