@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Module : seiche.py
+Module : upam.py
 Authors : Clea Parcerisas
 Institution : VLIZ (Vlaams Instituut voor de Zee)
 Last Accessed : 9/23/2020
@@ -11,7 +11,7 @@ from pyhydrophone.hydrophone import Hydrophone
 from datetime import datetime
 
 
-class Seiche(Hydrophone):
+class uPam(Hydrophone):
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
         """
         Init an instance of Seiche

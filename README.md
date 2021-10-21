@@ -6,9 +6,12 @@ pyhydrophone helps keeping together all the information of the recorder.
 
 Each class represents a different hydrophone. The available ones now are (others will be added): 
 - SoundTrap (OceanInstruments)
-- Seiche (Seiche)
+- uPam (Seiche)
 - AMAR (JASCO)
 - B&K Nexus
+- RTSys (RESEA)
+- EARS
+- MTE (Seiche)
 
 They all inherit from the main class Hydrophone. 
 If a hydrophone provides an output different than a regular wav file, functions to read and understand the output are provided. 
@@ -16,10 +19,16 @@ Functions to read the metadata are also provided (which is often encoded in the 
 
 
 ## How to install
+# Using pip
+```bash
+pip install pyhydrophone
 ```
+
+# using git clone
+```bash
 pip install setup.py
 ```
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -39,7 +48,7 @@ and you would not have to worry about which format the file name has or where th
 For more information about the parameters that each hydrophone takes, see examples folder: 
 
 ```
-sei = pyhy.Seiche(name, model, sensitivity, preamp_gain)
+upam = pyhy.uPam(name, model, sensitivity, preamp_gain)
 st = pyhy.SoundTrap(name, model, serial_number)
 am = pyhy.AmarG3(name, model, sensitivity, preamp_gain, mems_sensitivity)
 bk = pyhy.BruelKjaer(name, model, amplif)
