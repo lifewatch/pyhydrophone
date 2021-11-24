@@ -35,20 +35,17 @@ class AmarG3(Hydrophone):
         """
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
 
-    def get_name_datetime(self, file_name, utc=False):
+    def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
         Parameters
         ----------
         file_name : string
             File name (not path) of the file
-        utc : boolean
-            If set to True, the time of the file will be considered Local and will be changed to utc according to
-            the computer timezone
         """
         name = os.path.split(file_name)[1]
         date_string = name.split('.')[-2][-16:-1]
-        date = super().get_name_datetime(date_string, utc=utc)
+        date = super().get_name_datetime(date_string)
         return date
 
     def get_new_name(self, filename, new_date):

@@ -1,11 +1,4 @@
 #!/usr/bin/python
-"""
-Module : soundtrap.py
-Authors : Clea Parcerisas
-Institution : VLIZ (Vlaams Instituut voor de Zee)
-Last Accessed : 9/23/2020
-"""
-
 from pyhydrophone.hydrophone import Hydrophone
 
 import os
@@ -20,24 +13,24 @@ import pathlib
 
 
 class SoundTrap(Hydrophone):
+    """
+    Initialize a SoundTrap instance
+    Parameters
+    ----------
+    name: str
+        Name of the acoustic recorder
+    model: str or int
+        Model of the acoustic recorder
+    serial_number : str or int
+        Serial number of the acoustic recorder. It has to match the one in the calibration file
+    sensitivity : float
+        Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
+    gain_type : str
+        'High' or 'Low', depending on the settings of the recorder
+    string_format : string
+        Format of the datetime string present in the filename
+    """
     def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
-        """
-        Initialize a SoundTrap instance
-        Parameters
-        ----------
-        name: str
-            Name of the acoustic recorder
-        model: str or int
-            Model of the acoustic recorder
-        serial_number : str or int
-            Serial number of the acoustic recorder. It has to match the one in the calibration file
-        sensitivity : float
-            Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
-        gain_type : str
-            'High' or 'Low', depending on the settings of the recorder
-        string_format : string
-            Format of the datetime string present in the filename
-        """
         if sensitivity is None:
             try:
                 query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
@@ -99,7 +92,7 @@ class SoundTrap(Hydrophone):
         return {'type_start': type_start, 'temp': temp, 'fs': fs, 'st_gain': st_gain,
                 'start_time': start_time, 'stop_time': stop_time}
 
-    def get_name_datetime(self, file_name, utc=True):
+    def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
         Will convert the local in UTC. It assumes the localtime is the one from the computer
@@ -107,13 +100,10 @@ class SoundTrap(Hydrophone):
         ----------
         file_name : string
             File name (not path) of the file
-        utc : boolean
-            If set to True, the time of the file will be considered Local and will be changed to utc according to
-            the computer timezone
         """
         name = file_name.split('.')
         date_string = name[1]
-        date = super().get_name_datetime(date_string, utc=utc)
+        date = super().get_name_datetime(date_string)
         return date
 
     @staticmethod
@@ -149,7 +139,7 @@ class SoundTrap(Hydrophone):
         new_date : datetime object
             New datetime to be replaced in the filename
         """
-        old_date = self.get_name_datetime(filename, utc=False)
+        old_date = self.get_name_datetime(filename)
         old_date_name = datetime.strftime(old_date, "%y%m%d%H%M%S")
         new_date_name = datetime.strftime(new_date, "%y%m%d%H%M%S")
         new_filename = filename.replace(old_date_name, new_date_name)

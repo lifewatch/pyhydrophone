@@ -12,43 +12,40 @@ from datetime import datetime
 
 
 class uPam(Hydrophone):
+    """
+    Init an instance of Seiche
+    Parameters
+    ----------
+    name: str
+        Name of the acoustic recorder
+    model: str or int
+        Model of the acoustic recorder
+    serial_number : str or int
+        Serial number of the acoustic recorder
+    sensitivity : float
+        Sensitivity of the acoustic recorder in db
+    preamp_gain : float
+        Gain of the preamplifier in dB
+    Vpp : float
+        Voltage peak to peak in volts
+    string_format : string
+        Format of the datetime string present in the filename
+    """
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
-        """
-        Init an instance of Seiche
-        Parameters
-        ----------
-        name: str
-            Name of the acoustic recorder
-        model: str or int
-            Model of the acoustic recorder
-        serial_number : str or int
-            Serial number of the acoustic recorder
-        sensitivity : float
-            Sensitivity of the acoustic recorder in db
-        preamp_gain : float
-            Gain of the preamplifier in dB
-        Vpp : float
-            Voltage peak to peak in volts
-        string_format : string
-            Format of the datetime string present in the filename
-        """
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
 
-    def get_name_datetime(self, file_name, utc=True):
+    def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
         Parameters
         ----------
         file_name : string
             File name (not path) of the file
-        utc : boolean
-            If set to True, the time of the file will be considered Local and will be changed to utc according to
-            the computer timezone
         """
         name = file_name.split('.')[0]
         start_timestamp = name.find('_') + 1
         date_string = name[start_timestamp::]
-        date = super().get_name_datetime(date_string, utc=utc)
+        date = super().get_name_datetime(date_string)
         return date
 
     def get_new_name(self, filename, new_date):
