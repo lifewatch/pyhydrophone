@@ -11,7 +11,11 @@ Each class represents a different hydrophone. The available ones now are (others
 * SoundTrap (OceanInstruments)
 * Seiche (Seiche)
 * AMAR (JASCO)
-* B&K Nexus (Bruel & Kjaer)
+* RESEA (RTSys)
+* uPAM (Seiche)
+* EARS
+* MTE AURAL (MTE)
+
 
 They all inherit from the main class Hydrophone.
 If a certain recorder provides an output different than a regular wav file, functions to read and understand the output
@@ -21,27 +25,12 @@ Functions to read the metadata are also provided (which is often encoded in the 
 
 .. toctree::
   :maxdepth: 1
-  :caption: User Guide
+  :caption: Hydrophone objects
 
   Data Structures <data_structures>
 
-.. toctree::
-  :maxdepth: 1
-  :caption: Reference Guide
-
-  Classes, Attributes and Methods <reference>
 
 Contact
 ------------
 
 For any questions please relate to clea.parcerisas@vliz.be
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
-
-

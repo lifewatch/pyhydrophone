@@ -1,22 +1,74 @@
 .. currentmodule:: pyhydrophone
 
 Data Structures
-=========================================
+===============
 
-pyhydrophone implements one main structure, a :class:`Hydrophone` and its subclasses
-* :class:`SoundTrap`
-* :class:`Seiche`
-* :class:`BruelKjaer`
-* :class:`AMARG3`
-
-
-Hydrophone
+Classes
 -------
 
-The :class:`Hydrophone` represents an acoustic recorder and its properties and functions to read its output data
+Hydrophone
+^^^^^^^^^^
+The :class:`Hydrophone` represents an acoustic recorder and its properties and functions to read its output data.
+Each object needs to have at least the same functions than the class Hydrophone. Some can add additional functions.
 
 
-Attributes and Methods
-~~~~~~~~~~~~~~~~~~~~~~
-A short summary of a few attributes and methods for Hydrophone is
-presented here, and a full list can be found in the :doc:`all attributes and methods page <reference>`.
+.. automodule:: pyhydrophone.hydrophone
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+AMAR
+^^^^
+.. automodule:: pyhydrophone.amar
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+B&K
+^^^
+.. automodule:: pyhydrophone.bruelkjaer
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+EARS
+^^^^
+.. automodule:: pyhydrophone.ears
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+MTE
+^^^
+.. automodule:: pyhydrophone.mte
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+RTSYS
+^^^^^
+.. automodule:: pyhydrophone.rtsys
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+SoundTrap
+^^^^^^^^^
+.. automodule:: pyhydrophone.soundtrap
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+uPAM
+^^^^
+.. automodule:: pyhydrophone.upam
+   :members:
+   :undoc-members:
+   :inherited-members:
