@@ -8,10 +8,10 @@ Each class represents a different hydrophone. The available ones now are (others
 - SoundTrap (OceanInstruments)
 - uPam (Seiche)
 - AMAR (JASCO)
-- B&K Nexus
+- B&K Nexus (Bruel & Kjaer)
 - RTSys (RESEA)
 - EARS
-- MTE (Seiche)
+- MTE AURAL (Seiche)
 
 They all inherit from the main class Hydrophone. 
 If a hydrophone provides an output different than a regular wav file, functions to read and understand the output are provided. 
@@ -75,7 +75,7 @@ SoundTrapHF (inherited from SoundTrap) comes with a routine to read the *.dwv fi
 
 A folder with several (xml, bcl, dwv) files can be specified and passed to the function.
 
-### Seiche
+### uPam
 For now only provides a method to read the date from the filename as it comes out from the device.
 
 The date format of the file is assumed to be: *project_name_yymmdd_HHMMSS_NUM.ext*
@@ -93,9 +93,23 @@ https://www.jasco.com/
 
 ### B&K
 Provides a method to read the date from the filename (it has to be changed, as the date is not saved in the file).
-It also provides the calculation of the sensitivity according to the selected amplification. Only [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0] V are valid numbers. 
-A function to change the sensitivity of the hydrophone is provided (update_calibration), which can be used when the test signal is created at the beggining of the file.
+It also provides the calculation of the sensitivity according to the selected amplification. 
+Only [100e-6, 316e-6, 1e-3, 3.16e-3, 10e-3, 31.6e-3, 100e-3, 316e-3, 1.0, 3.16, 10.0] V are valid numbers. 
+A function to change the sensitivity of the hydrophone is provided (update_calibration), which can be used when the test 
+signal is created at the beggining of the file. It has to be specified if it is a "test" signal or a "reference" signal
+to be used for calibration.
 
 https://www.bksv.com/en/products/transducers/conditioning/microphone/2690-A-0F2
 
 
+### RTSys
+Provides a method to read the date from the file name. It also adds a method to compute the power consumtion and plot it
+over time.
+https://rtsys.eu/acoustic-recorders
+
+### EARS
+Just provides a method to read the date time from the name.
+
+### MTE AURAL
+Just provides a method to read the date time from the name.
+http://www.multi-electronique.com/files/AURAL/user/AURAL-M2_USER_GUIDE.pdf

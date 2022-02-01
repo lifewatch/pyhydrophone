@@ -1,11 +1,4 @@
 #!/usr/bin/python
-"""
-Module : upam.py
-Authors : Clea Parcerisas
-Institution : VLIZ (Vlaams Instituut voor de Zee)
-Last Accessed : 9/23/2020
-"""
-
 from pyhydrophone.hydrophone import Hydrophone
 
 from datetime import datetime

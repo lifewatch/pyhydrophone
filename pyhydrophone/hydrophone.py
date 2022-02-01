@@ -6,6 +6,7 @@ import numpy as np
 class Hydrophone:
     """
     Base class Hydrophone initialization
+
     Parameters
     ----------
     name: str

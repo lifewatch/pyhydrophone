@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 
 class RTSys(Hydrophone):
     """
-    Init an instance of Seiche
+    Init an instance of RTSys
     Parameters
     ----------
     name: str

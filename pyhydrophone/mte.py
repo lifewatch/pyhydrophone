@@ -6,7 +6,7 @@ from datetime import datetime
 
 class MTE(Hydrophone):
     """
-    Init an instance of Seiche
+    Init an instance of Aural
     Parameters
     ----------
     name: str
