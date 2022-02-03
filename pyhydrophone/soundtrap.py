@@ -174,59 +174,49 @@ class SoundTrapHF(SoundTrap):
         """
         super().__init__(name, model, serial_number, sensitivity, gain_type, string_format)
 
-    def read_HFfolder(self, main_folder_path, zip_mode=False):
+    def read_HFfolder(self, main_folder_path, zip_mode=False, include_dirs=False):
         """
-        Read all the clicks in all the folders
+        Read all the clicks in all the folders. If zip_mode is True and include_dirs is True, only the INSIDE folders
+        can be zipped inside a non-zipped folder. If only one zip folder is to be analyzed, then set include_dirs
+        to False.
+
         Parameters
         ----------
-        main_folder_path: str
+        main_folder_path: str or Path
             Folder containing all the files and/or subfolders to be extracted
-        zip_mode : boolean
+        zip_mode : boole
             Set to True if the folders are zipped
+        include_dirs : bool
+            Set to True if folder needs to be analyzed recursively
 
         Returns
         -------
         A DataFrame with all the clicks of all the folders and a fs metadata parameter with the sampling rate
         """
+        if type(main_folder_path) == str:
+            main_folder_path = pathlib.Path(main_folder_path)
         clicks = pd.DataFrame()
-        for folder_name in os.listdir(main_folder_path):
-            folder_path = os.path.join(main_folder_path, folder_name)
-            folder_clicks = self.read_HFclicks(folder_path, zip_mode=zip_mode)
-            clicks = clicks.append(folder_clicks, ignore_index=True)
-
-        return clicks
-
-    def read_HFclicks(self, folder_path, zip_mode=False):
-        """
-        Read all the clicks stored in a folder with soundtrap files
-        Parameters
-        ----------
-        folder_path: str
-            Folder containing files to be extracted
-        zip_mode : boolean
-            Set to True if the folders are zipped
-
-        Returns
-        -------
-        A DataFrame with all the clicks and a fs metadata parameter with the sampling rate
-        """
-        clicks = pd.DataFrame()
-        if zip_mode:
-            folder_path = zipfile.ZipFile(folder_path, 'r', allowZip64=True)
-            files_list = folder_path.namelist()
+        if not zip_mode:
+            if include_dirs:
+                glob_str = '**.wav'
+            else:
+                glob_str = '*.wav'
+            for file_name in main_folder_path.glob(glob_str):
+                clicks_file = self.read_HFclicks_file(file_name, zip_mode)
+                clicks = clicks.append(clicks_file)
         else:
-            files_list = os.listdir(folder_path)
-
-        for file_name in files_list:
-            if zip_mode:
-                if file_name.split('.')[-1] == 'wav':
-                    file_name = pathlib.Path(folder_path.filename).joinpath(file_name)
-                    clicks_file = self.read_HFclicks_file(file_name, zip_mode)
+            if include_dirs:
+                for zipped_dir in main_folder_path.glob('*'):
+                    clicks_file = self.read_HFfolder(zipped_dir, zip_mode=zip_mode, include_dirs=False)
                     clicks = clicks.append(clicks_file)
             else:
-                if file_name.split(".")[-1] == 'wav':
-                    clicks_file = self.read_HFclicks_file(file_name, zip_mode)
-                    clicks = clicks.append(clicks_file)
+                folder_path = zipfile.ZipFile(main_folder_path, 'r', allowZip64=True)
+                files_list = folder_path.namelist()
+                for file_name in files_list:
+                    if file_name.split('.')[-1] == 'wav':
+                        file_name = pathlib.Path(folder_path.filename).joinpath(file_name)
+                        clicks_file = self.read_HFclicks_file(file_name, zip_mode)
+                        clicks = clicks.append(clicks_file)
 
         return clicks
 
@@ -264,7 +254,7 @@ class SoundTrapHF(SoundTrap):
         except FileNotFoundError:
             print(dwv_path, 'has some problem and can not be read')
         if zip_mode:
-            dwv_path = wavfile_path.parent.join(bcl_name)
+            dwv_path = wavfile_path.parent.joinpath(bcl_name)
         file_clicks['filename'] = str(dwv_path)
         return file_clicks
 

@@ -35,6 +35,7 @@ coverage.xml
 *.cover
 .hypothesis/
 result_images
+*.pkl
 
 # Sphinx documentation
 doc/_build/

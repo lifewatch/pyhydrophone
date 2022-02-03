@@ -1,0 +1,180 @@
+<ST>
+<EVENT>
+<START STATE="REOPEN" />
+</EVENT>
+<EVENT>
+<HARDWARE_ID> ST300 </HARDWARE_ID>
+</EVENT>
+<EVENT>
+<MSPVER> 213 </MSPVER>
+</EVENT>
+<EVENT>
+<INT_BATT UNITS="mV"> 4043 </INT_BATT>
+</EVENT>
+<EVENT>
+<EX_BATT UNITS="mV"> 122 </EX_BATT>
+</EVENT>
+<EVENT>
+<TEMPERATURE UNITS="DegCx100"> 1182 </TEMPERATURE>
+</EVENT>
+<CFG ID="0" FTYPE="xml">
+<BINFILE TIME="14:14:50" DATE="May 31 2019"  VER="3.2.0.1">  </BINFILE>
+</CFG>
+<CFG ID="1">
+<PROC> AUDIO </PROC>
+<NCHS> 1 </NCHS>
+<BAND> HF1 </BAND>
+<FS UNIT="Hz"> 576000 </FS>
+<NBITS> 16 </NBITS>
+</CFG>
+<CFG ID="2">
+<SRC ID="1" />
+<PROC> DECM </PROC>
+<DF> 6 </DF>
+<NF> 49 </NF>
+</CFG>
+<CFG ID="3" FTYPE="X3V2">
+<SRC ID="2" />
+<BLKLEN> 16 </BLKLEN>
+<NCHS> 1 </NCHS>
+<FILTER> diff </FILTER>
+<NBITS> 16 </NBITS>
+<CODE THRESH="2"> RICE0 </CODE>
+<CODE THRESH="7"> RICE1 </CODE>
+<CODE THRESH="19"> RICE3 </CODE>
+<CODE> BFP </CODE>
+</CFG>
+<CFG ID="4" FTYPE="wav" CODEC="3">
+<SRC ID="3" />
+<FS> 96000 </FS>
+<NBITS> 16 </NBITS>
+<NCHS> 1 </NCHS>
+<SUFFIX> wav </SUFFIX>
+</CFG>
+<CFG ID="5" FTYPE="txt">
+<PROC> LOG </PROC>
+<SUFFIX> bcl </SUFFIX>
+<FORMAT> none </FORMAT>
+</CFG>
+<CFG ID="6">
+<SRC ID="1" />
+<PROC> FILT </PROC>
+<NFILT> 12 </NFILT>
+</CFG>
+<CFG ID="7">
+<SRC ID="6" />
+<PROC> BPWR </PROC>
+<LOG-TC UNIT="bits"> 6 </LOG-TC>
+<SHIFT UNIT="bits"> 6 </SHIFT>
+</CFG>
+<CFG ID="8">
+<PROC> FILT </PROC>
+<NFILT> 15 </NFILT>
+</CFG>
+<CFG ID="9">
+<SRC ID="6" />
+<PROC> CDET </PROC>
+<DETTHR TYPE="relative"> 10 </DETTHR>
+<BLANKING UNIT="samples"> 576 </BLANKING>
+<PREDET UNIT="samples"> 57 </PREDET>
+<POSTDET UNIT="samples"> 115 </POSTDET>
+<LEN UNIT="samples"> 5 </LEN>
+<USING ID="8" />
+</CFG>
+<CFG ID="10">
+<SRC ID="9" />
+<PROC> CLICKTRAP </PROC>
+<WF> PP576_12 </WF>
+<MF> MF576_POW1_15 </MF>
+<USING ID="6" />
+<USING ID="7" />
+</CFG>
+<CFG ID="11" FTYPE="X3V2">
+<SRC ID="13" />
+<BLKLEN> 16 </BLKLEN>
+<NCHS> 1 </NCHS>
+<FILTER> diff </FILTER>
+<NBITS> 16 </NBITS>
+<CODE THRESH="2"> RICE0 </CODE>
+<CODE THRESH="7"> RICE1 </CODE>
+<CODE THRESH="19"> RICE3 </CODE>
+<CODE> BFP </CODE>
+</CFG>
+<CFG ID="12" FTYPE="wav" CODEC="11">
+<SRC ID="11" />
+<FS> 576000 </FS>
+<NBITS> 16 </NBITS>
+<NCHS> 1 </NCHS>
+<SUFFIX> dwv </SUFFIX>
+<TIMECHK> 0 </TIMECHK>
+<BLKLEN> 172 </BLKLEN>
+</CFG>
+<CFG ID="13">
+<SRC ID="9" />
+<PROC> snip </PROC>
+<LEN> 172 </LEN>
+</CFG>
+<CFG ID="14" FTYPE="csv">
+<PROC> SEN </PROC>
+<SUFFIX> accel </SUFFIX>
+<HEADER> unix time, X, Y, Z </HEADER>
+<PERIOD UNIT="ms"> 20000 </PERIOD>
+</CFG>
+<CFG ID="15" FTYPE="csv">
+<PROC> SEN </PROC>
+<SUFFIX> temp </SUFFIX>
+<HEADER> unix time, degrees C </HEADER>
+<PERIOD UNIT="ms"> 20000 </PERIOD>
+</CFG>
+<EVENT>
+<END STATE="REOPEN"> schedule </END>
+</EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler OffloaderTimeZone="Romance Standard Time"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStartTimeUTC="2021-06-10T03:46:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStartTimeLocal="2021-06-10T05:46:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStopTimeUTC="2021-06-10T03:51:54"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingStopTimeLocal="2021-06-10T05:51:54"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SamplingTimePeriod="299972700 us"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler CumulativeSamplingGap="-4701 us"/>
+</PROC_EVENT>
+<PROC_EVENT ID="4">
+<WavFileHandler SampleCount="28801184"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler OffloaderTimeZone="Romance Standard Time"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SamplingStartTimeUTC="2021-06-10T03:46:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SamplingStartTimeLocal="2021-06-10T05:46:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SamplingStopTimeUTC="2021-06-10T03:51:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SamplingStopTimeLocal="2021-06-10T05:51:55"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SamplingTimePeriod="299990001 us"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler CumulativeSamplingGap="293146729 us"/>
+</PROC_EVENT>
+<PROC_EVENT ID="12">
+<WavFileHandler SampleCount="3949980"/>
+</PROC_EVENT>
+</ST>
