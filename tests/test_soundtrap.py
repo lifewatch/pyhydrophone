@@ -21,7 +21,7 @@ class TestSoundTrap(unittest.TestCase):
 
     def test_hf(self):
         # Convert the sound clips to click and save
-        clicks_df = self.hydrophone.read_HFfolder(test_files, zip_mode=True, include_dirs=True)
+        clicks_df = self.hydrophone.read_HFfolder(test_files, zip_mode=False, include_dirs=False)
         clicks_df.to_pickle(clicks_output_path)
 
         return clicks_df

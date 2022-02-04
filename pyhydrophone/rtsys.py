@@ -33,8 +33,10 @@ class RTSys(Hydrophone):
     string_format : string
         Format of the datetime string present in the filename
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y-%m-%d_%H-%M-%S"):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+        self.cal_freq = 250
+        self.cal_value = 131.4
 
     def get_name_datetime(self, file_name):
         """
@@ -61,8 +63,8 @@ class RTSys(Hydrophone):
             New datetime to be replaced in the filename
         """
         old_date = self.get_name_datetime(filename)
-        old_date_name = datetime.strftime(old_date, "%Y%m%d_%H%M%S_%f")
-        new_date_name = datetime.strftime(new_date, "%Y%m%d_%H%M%S_%f")
+        old_date_name = datetime.strftime(old_date, self.string_format)
+        new_date_name = datetime.strftime(new_date, self.string_format)
         new_filename = filename.replace(old_date_name, new_date_name)
 
         return new_filename
@@ -161,7 +163,7 @@ class RTSys(Hydrophone):
         if mode == 'lowpower':
             ampl = 20 * np.log10(5/np.sqrt(2))
         else:
-            ampl = 20 * np.log10((extra_header['hydrophone_amplification_%s' % channel] *
-                                  extra_header['correction_factor_%s' % channel]))
+            ampl = 20 * np.log10((1 / (extra_header['hydrophone_amplification_%s' % channel] *
+                                  extra_header['correction_factor_%s' % channel])))
 
         return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)

@@ -5,7 +5,6 @@ import unittest
 
 test_folder = pathlib.Path("./test_data/rtsys/")
 test_file = pathlib.Path("./test_data/rtsys/channelA_2021-10-11_13-11-09.wav")
-test_file = pathlib.Path('//archive/other_platforms/rtsys/PhD_Clea/20210309_Grafton/records/210309/channelA_2021-03-09_12-00-18.wav')
 
 rtsys_name = 'RTSys'
 rtsys_model = 'RESEA320'
@@ -30,6 +29,10 @@ class TestRTSys(unittest.TestCase):
         for file_path in test_folder.glob('*.wav'):
             header = rtsys.read_header(file_path)
             print(header)
+
+    def test_calibration(self):
+        rtsys = pyhy.RTSys.from_header(test_file)
+        rtsys.calibrate(test_file)
 
 
 if __name__ == '__main__':
