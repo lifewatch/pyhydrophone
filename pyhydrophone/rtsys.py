@@ -36,7 +36,7 @@ class RTSys(Hydrophone):
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y-%m-%d_%H-%M-%S"):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
         self.cal_freq = 250
-        self.cal_value = 131.4
+        self.cal_value = 114
 
     def get_name_datetime(self, file_name):
         """
