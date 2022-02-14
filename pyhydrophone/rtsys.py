@@ -5,6 +5,8 @@ import soundfile as sf
 from datetime import datetime
 import struct
 import numpy as np
+import zipfile
+import os
 
 try:
     import matplotlib.pyplot as plt
@@ -100,7 +102,7 @@ class RTSys(Hydrophone):
         """
 
     @staticmethod
-    def read_header(file_path):
+    def read_header(file_path, zip_mode=False):
         """
         Return the parameters of the *.wav file's header as a dictionary
         Parameters
@@ -135,7 +137,13 @@ class RTSys(Hydrophone):
             'active_channels': {'format': 'c', 'start': 100, 'end': 104, 'n': 4}
         }
 
-        f = open(file_path, 'rb')
+        if zip_mode==True:
+            path_zip = file_path.split('.zip')[0]+'.zip'
+            file_zip = os.path.relpath(file_path, start=path_zip).replace('\\','/')
+            zipFolder = zipfile.ZipFile(path_zip, 'r')
+            f = zipFolder.open(file_zip)
+        else:
+            f = open(file_path, 'rb')
         f.seek(40)
         config_size = struct.unpack('I', f.read(4))[0]
         f.seek(36)
@@ -152,8 +160,8 @@ class RTSys(Hydrophone):
         return extra_header
 
     @staticmethod
-    def from_header(file_path, mode='broadband'):
-        extra_header = RTSys.read_header(file_path)
+    def from_header(file_path, mode='broadband', zip_mode=False):
+        extra_header = RTSys.read_header(file_path, zip_mode)
         channel = str(extra_header['channel'])
         sens = extra_header['hydrophone_sensitivity_%s' % channel]
         name = 'RTSys'
