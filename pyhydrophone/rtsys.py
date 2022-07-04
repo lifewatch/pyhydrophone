@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from pyhydrophone.hydrophone import Hydrophone
 
-import soundfile as sf
 from datetime import datetime
 import struct
 import numpy as np
@@ -162,16 +161,28 @@ class RTSys(Hydrophone):
     @staticmethod
     def from_header(file_path, mode='broadband', zip_mode=False):
         extra_header = RTSys.read_header(file_path, zip_mode)
-        channel = str(extra_header['channel'])
-        sens = extra_header['hydrophone_sensitivity_%s' % channel]
-        name = 'RTSys'
-        model = None
-        serial_number = extra_header['serial_number']
+        active_channels = []
+        for channel_i in np.arange(4):
+            if extra_header['active_channels'][channel_i] != '\x00':
+                active_channels.append(extra_header['active_channels'][channel_i])
 
-        if mode == 'lowpower':
-            ampl = 20 * np.log10(5/np.sqrt(2))
+        rtsys_list = []
+        for channel in active_channels:
+            sens = extra_header['hydrophone_sensitivity_%s' % channel]
+            name = 'RTSys'
+            model = None
+            serial_number = extra_header['serial_number']
+
+            if mode == 'lowpower':
+                ampl = 20 * np.log10(5/np.sqrt(2))
+            else:
+                ampl = 20 * np.log10((1 / (extra_header['hydrophone_amplification_%s' % channel] *
+                                      extra_header['correction_factor_%s' % channel])))
+
+            rtsys_list.append(RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens,
+                                    preamp_gain=ampl, Vpp=5.0))
+
+        if len(rtsys_list) == 1:
+            return rtsys_list[0]
         else:
-            ampl = 20 * np.log10((1 / (extra_header['hydrophone_amplification_%s' % channel] *
-                                  extra_header['correction_factor_%s' % channel])))
-
-        return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)
+            return rtsys_list
