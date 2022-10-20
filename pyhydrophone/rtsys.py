@@ -6,6 +6,7 @@ import struct
 import numpy as np
 import zipfile
 import os
+import pathlib
 
 try:
     import matplotlib.pyplot as plt
@@ -71,34 +72,77 @@ class RTSys(Hydrophone):
         return new_filename
 
     @staticmethod
-    def plot_consumption(board_file_path):
-        """
-        Plot the consumption evolution from the board_file_path
-        Parameters
-        ----------
-        board_file_path : str or Path
-        """
+    def _parse_board_file(board_file_path):
         board_info = pd.read_csv(board_file_path, delimiter=';', names=['id', 'T', 'V', 'I', 'P'],
                                  usecols=[0, 1, 2, 3, 4])
         board_info['T'] = board_info['T'].str.replace('T:', '').astype(float)
         board_info['V'] = board_info['V'].str.replace('V:', '').astype(float)
         board_info['I'] = board_info['I'].str.replace('I:', '').astype(float)
         board_info['P'] = board_info['P'].str.replace('P:', '').astype(float)
+        board_info['timestamp'] = pd.to_datetime(board_info['id'].str.replace('@:', '').astype(float), unit='s')
+        board_info['dP'] = board_info['timestamp'].diff().dt.total_seconds() * board_info['P']
+
+        return board_info
+
+    def plot_consumption(self, board_file_path):
+        """
+        Plot the consumption evolution from the board_file_path
+        Parameters
+        ----------
+        board_file_path : str or Path
+        """
+        board_info = self._parse_board_file(board_file_path)
         board_info.plot(y=['V', 'P'])
         plt.show()
 
-    @staticmethod
-    def compute_consumption(mission_file_path):
+    def plot_consumption_total_mission(self, mission_folder_path):
+        if not isinstance(mission_folder_path, pathlib.Path):
+            mission_folder_path = pathlib.Path(mission_folder_path)
+
+        total_board = pd.DataFrame()
+        for board_file_i in mission_folder_path.glob('**/*.txt'):
+            if 'board' in board_file_i.name:
+                board_i = self._parse_board_file(board_file_i)
+                total_board = pd.concat([total_board, board_i])
+
+        total_board.plot(x='timestamp', y=['V', 'P'], secondary_y='P')
+        plt.show()
+
+    def compute_consumption(self, board_file_path):
         """
-        Calculate the total energy consumption of the mission
+        Calculate the total energy consumption of the file
         Parameters
         ----------
-        mission_file_path
+        board_file_path : str or Path
 
         Returns
         -------
-
+        Total consumption in the file
         """
+        board_info = self._parse_board_file(board_file_path)
+
+        return board_info['dP'].sum() / 3600
+
+    def compute_consumption_total_mission(self, mission_folder_path):
+        """
+        Calculate the total energy consumption of the file
+        Parameters
+        ----------
+        mission_folder_path : str or Path
+
+        Returns
+        -------
+        Total consumption in the mission
+        """
+        if not isinstance(mission_folder_path, pathlib.Path):
+            mission_folder_path = pathlib.Path(mission_folder_path)
+
+        total_consumption = 0
+        for board_file_i in mission_folder_path.glob('**/*.txt'):
+            if 'board' in board_file_i.name:
+                total_consumption += self.compute_consumption(board_file_i)
+
+        return total_consumption
 
     @staticmethod
     def read_header(file_path, zip_mode=False):
