@@ -32,13 +32,17 @@ class RTSys(Hydrophone):
         Gain of the preamplifier in dB
     Vpp : float
         Voltage peak to peak in volts
+    mode: string
+        Can be 'lowpower' or 'broadband'
     string_format : string
         Format of the datetime string present in the filename
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y-%m-%d_%H-%M-%S"):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode,
+                 string_format="%Y-%m-%d_%H-%M-%S"):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
         self.cal_freq = 250
         self.cal_value = 114
+        self.mode = mode
 
     def get_name_datetime(self, file_name):
         """
@@ -159,6 +163,10 @@ class RTSys(Hydrophone):
 
         return extra_header
 
+    def new(self, file_path, mode, zip_mode):
+        name, model, serial_number, sens, ampl = self.from_header(file_path, mode, zip_mode)
+        return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)
+
     @staticmethod
     def from_header(file_path, mode='broadband', zip_mode=False):
         extra_header = RTSys.read_header(file_path, zip_mode)
@@ -174,4 +182,10 @@ class RTSys(Hydrophone):
             ampl = 20 * np.log10((1 / (extra_header['hydrophone_amplification_%s' % channel] *
                                   extra_header['correction_factor_%s' % channel])))
 
-        return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)
+        return name, model, serial_number, sens, ampl
+
+    def calibrate(self, file_path, zip_mode=False):
+        _, _, _, sens, ampl = self.from_header(file_path, self.mode, zip_mode)
+        self.sensitivity = sens
+        self.preamp_gain = ampl
+        self.Vpp = 5.0
