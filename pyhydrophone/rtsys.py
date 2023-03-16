@@ -1,12 +1,12 @@
 #!/usr/bin/python
 from pyhydrophone.hydrophone import Hydrophone
 
-import soundfile as sf
 from datetime import datetime
 import struct
 import numpy as np
 import zipfile
 import os
+import pathlib
 
 try:
     import matplotlib.pyplot as plt
@@ -34,15 +34,18 @@ class RTSys(Hydrophone):
         Voltage peak to peak in volts
     mode: string
         Can be 'lowpower' or 'broadband'
+    channel: string
+        Channel to process, 'A', 'B', 'C' or 'D'
     string_format : string
         Format of the datetime string present in the filename
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode,
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode, channel='A',
                  string_format="%Y-%m-%d_%H-%M-%S"):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
         self.cal_freq = 250
         self.cal_value = 114
         self.mode = mode
+        self.channel = channel
 
     def get_name_datetime(self, file_name):
         """
@@ -76,34 +79,77 @@ class RTSys(Hydrophone):
         return new_filename
 
     @staticmethod
-    def plot_consumption(board_file_path):
-        """
-        Plot the consumption evolution from the board_file_path
-        Parameters
-        ----------
-        board_file_path : str or Path
-        """
+    def _parse_board_file(board_file_path):
         board_info = pd.read_csv(board_file_path, delimiter=';', names=['id', 'T', 'V', 'I', 'P'],
                                  usecols=[0, 1, 2, 3, 4])
         board_info['T'] = board_info['T'].str.replace('T:', '').astype(float)
         board_info['V'] = board_info['V'].str.replace('V:', '').astype(float)
         board_info['I'] = board_info['I'].str.replace('I:', '').astype(float)
         board_info['P'] = board_info['P'].str.replace('P:', '').astype(float)
+        board_info['timestamp'] = pd.to_datetime(board_info['id'].str.replace('@:', '').astype(float), unit='s')
+        board_info['dP'] = board_info['timestamp'].diff().dt.total_seconds() * board_info['P']
+
+        return board_info
+
+    def plot_consumption(self, board_file_path):
+        """
+        Plot the consumption evolution from the board_file_path
+        Parameters
+        ----------
+        board_file_path : str or Path
+        """
+        board_info = self._parse_board_file(board_file_path)
         board_info.plot(y=['V', 'P'])
         plt.show()
 
-    @staticmethod
-    def compute_consumption(mission_file_path):
+    def plot_consumption_total_mission(self, mission_folder_path):
+        if not isinstance(mission_folder_path, pathlib.Path):
+            mission_folder_path = pathlib.Path(mission_folder_path)
+
+        total_board = pd.DataFrame()
+        for board_file_i in mission_folder_path.glob('**/*.txt'):
+            if 'board' in board_file_i.name:
+                board_i = self._parse_board_file(board_file_i)
+                total_board = pd.concat([total_board, board_i])
+
+        total_board.plot(x='timestamp', y=['V', 'P'], secondary_y='P')
+        plt.show()
+
+    def compute_consumption(self, board_file_path):
         """
-        Calculate the total energy consumption of the mission
+        Calculate the total energy consumption of the file
         Parameters
         ----------
-        mission_file_path
+        board_file_path : str or Path
 
         Returns
         -------
-
+        Total consumption in the file
         """
+        board_info = self._parse_board_file(board_file_path)
+
+        return board_info['dP'].sum() / 3600
+
+    def compute_consumption_total_mission(self, mission_folder_path):
+        """
+        Calculate the total energy consumption of the file
+        Parameters
+        ----------
+        mission_folder_path : str or Path
+
+        Returns
+        -------
+        Total consumption in the mission
+        """
+        if not isinstance(mission_folder_path, pathlib.Path):
+            mission_folder_path = pathlib.Path(mission_folder_path)
+
+        total_consumption = 0
+        for board_file_i in mission_folder_path.glob('**/*.txt'):
+            if 'board' in board_file_i.name:
+                total_consumption += self.compute_consumption(board_file_i)
+
+        return total_consumption
 
     @staticmethod
     def read_header(file_path, zip_mode=False):
@@ -163,29 +209,45 @@ class RTSys(Hydrophone):
 
         return extra_header
 
-    def new(self, file_path, mode, zip_mode):
-        name, model, serial_number, sens, ampl = self.from_header(file_path, mode, zip_mode)
+    def new(self, file_path, zip_mode):
+        header = self.read_header(file_path, zip_mode)
+        name, model, serial_number, sens, ampl = self.meta_from_header(header)
         return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)
 
-    @staticmethod
-    def from_header(file_path, mode='broadband', zip_mode=False):
-        extra_header = RTSys.read_header(file_path, zip_mode)
-        channel = str(extra_header['channel'])
-        sens = extra_header['hydrophone_sensitivity_%s' % channel]
+    def meta_from_header(self, header):
+        sens = header['hydrophone_sensitivity_%s' % self.channel]
         name = 'RTSys'
         model = None
-        serial_number = extra_header['serial_number']
+        serial_number = header['serial_number']
 
-        if mode == 'lowpower':
-            ampl = 20 * np.log10(5/np.sqrt(2))
+        if self.mode == 'lowpower':
+            ampl = 20 * np.log10(5 / np.sqrt(2))
         else:
-            ampl = 20 * np.log10((1 / (extra_header['hydrophone_amplification_%s' % channel] *
-                                  extra_header['correction_factor_%s' % channel])))
-
+            ampl = 20 * np.log10((1 / (header['hydrophone_amplification_%s' % self.channel] *
+                                       header['correction_factor_%s' % self.channel])))
         return name, model, serial_number, sens, ampl
 
+    def one_rtsys_per_channel_from_header(self, file_path, zip_mode=False):
+        extra_header = self.read_header(file_path, zip_mode)
+        active_channels = []
+        for channel_i in np.arange(4):
+            if extra_header['active_channels'][channel_i] != '\x00':
+                active_channels.append(extra_header['active_channels'][channel_i])
+
+        rtsys_list = []
+        for channel in active_channels:
+            name, model, serial_number, sens, ampl = self.meta_from_header(extra_header)
+            rtsys_list.append(RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens,
+                                    preamp_gain=ampl, Vpp=5.0, channel=channel))
+
+        if len(rtsys_list) == 1:
+            return rtsys_list[0]
+        else:
+            return rtsys_list
+
     def calibrate(self, file_path, zip_mode=False):
-        _, _, _, sens, ampl = self.from_header(file_path, self.mode, zip_mode)
+        header = self.read_header(file_path, zip_mode)
+        name, model, serial_number, sens, ampl = self.meta_from_header(header)
         self.sensitivity = sens
         self.preamp_gain = ampl
         self.Vpp = 5.0

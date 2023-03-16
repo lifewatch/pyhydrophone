@@ -288,7 +288,7 @@ class SoundTrapHF(SoundTrap):
         waves = []
 
         for block in sound_file.blocks(blocksize=click_len):
-            waves.append(block.astype(np.float))
+            waves.append(block.astype(float))
 
         print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
 
