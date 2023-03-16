@@ -82,10 +82,18 @@ class RTSys(Hydrophone):
     def _parse_board_file(board_file_path):
         board_info = pd.read_csv(board_file_path, delimiter=';', names=['id', 'T', 'V', 'I', 'P'],
                                  usecols=[0, 1, 2, 3, 4])
-        board_info['T'] = board_info['T'].str.replace('T:', '').astype(float)
-        board_info['V'] = board_info['V'].str.replace('V:', '').astype(float)
-        board_info['I'] = board_info['I'].str.replace('I:', '').astype(float)
-        board_info['P'] = board_info['P'].str.replace('P:', '').astype(float)
+        board_info['T'] = board_info['T'].str.replace('T:', '')
+        board_info.loc[board_info['T'] == ''] = np.nan
+        board_info['T'] = board_info['T'].astype(float)
+        board_info['V'] = board_info['V'].str.replace('V:', '')
+        board_info.loc[board_info['V'] == ''] = np.nan
+        board_info['V'] = board_info['V'].astype(float)
+        board_info['I'] = board_info['I'].str.replace('I:', '')
+        board_info.loc[board_info['I'] == ''] = np.nan
+        board_info['I'] = board_info['I'].astype(float)
+        board_info['P'] = board_info['P'].str.replace('P:', '')
+        board_info.loc[board_info['P'] == ''] = np.nan
+        board_info['P'] = board_info['P'].astype(float)
         board_info['timestamp'] = pd.to_datetime(board_info['id'].str.replace('@:', '').astype(float), unit='s')
         board_info['dP'] = board_info['timestamp'].diff().dt.total_seconds() * board_info['P']
 
@@ -102,7 +110,7 @@ class RTSys(Hydrophone):
         board_info.plot(y=['V', 'P'])
         plt.show()
 
-    def plot_consumption_total_mission(self, mission_folder_path):
+    def plot_consumption_total_mission(self, mission_folder_path, ax=None, show=True):
         if not isinstance(mission_folder_path, pathlib.Path):
             mission_folder_path = pathlib.Path(mission_folder_path)
 
@@ -112,8 +120,11 @@ class RTSys(Hydrophone):
                 board_i = self._parse_board_file(board_file_i)
                 total_board = pd.concat([total_board, board_i])
 
-        total_board.plot(x='timestamp', y=['V', 'P'], secondary_y='P')
-        plt.show()
+        if ax is None:
+            fig, ax = plt.subplots()
+        total_board.plot(x='timestamp', y=['V', 'P'], secondary_y='P', ax=ax)
+        if show:
+            plt.show()
 
     def compute_consumption(self, board_file_path):
         """
