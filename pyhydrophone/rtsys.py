@@ -220,10 +220,22 @@ class RTSys(Hydrophone):
 
         return extra_header
 
-    def new(self, file_path, zip_mode):
+    def update_metadata(self, file_path, zip_mode):
+        """
+        Creates a new RTSys object from an already existing one but updating the metadata from the file header.
+        The "mode" parameter stays the same.
+
+        Parameters
+        ----------
+        file_path: str or Path
+            path to the wav file recorded with RTSys with a correc header
+        zip_mode: bool
+            True if file is zipped, otherwise false
+        """
         header = self.read_header(file_path, zip_mode)
         name, model, serial_number, sens, ampl = self.meta_from_header(header)
-        return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0)
+        return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0,
+                     mode=self.mode)
 
     def meta_from_header(self, header):
         sens = header['hydrophone_sensitivity_%s' % self.channel]
