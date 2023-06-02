@@ -34,8 +34,23 @@ class SoundTrap(Hydrophone):
         if sensitivity is None:
             try:
                 query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
-                response = requests.get(query).json()[0]
-                device_id = response['deviceId']
+                response = requests.get(query).json()
+                if len(response) > 1:
+                    models_available = {}
+                    for device in response:
+                        if device['serialNo'] == str(serial_number):
+                            models_available[device['modelName']] = device['deviceId']
+
+                    if model not in models_available.keys():
+                        raise AttributeError('There are multiple instruments with serial number %s. Set the model '
+                                             'parameter to match the model specified in the SoundTrap calibration '
+                                             'webpage to chose the correct one: %s' %
+                                             (serial_number, models_available.keys()))
+                    else:
+                        device_id = models_available[model]
+                else:
+                    # Ignore the model name if there is only one serial number
+                    device_id = response[0]['deviceId']
                 query = 'http://oceaninstruments.azurewebsites.net/api/Calibrations/Device/%s' % device_id
                 response = requests.get(query).json()[0]
                 if gain_type == 'High':
