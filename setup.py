@@ -8,5 +8,4 @@ setup(name='pyhydrophone',
       author_email='clea.parcerisas@vliz.be',
       license='',
       packages=['pyhydrophone'],
-      package_data={'pyhydrophone': ['calibration/soundtrap/*.ini']},
       zip_safe=False)
