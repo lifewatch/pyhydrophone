@@ -14,7 +14,8 @@ Each class represents a different hydrophone. The available ones now are (others
 - MTE AURAL (Seiche)
 
 They all inherit from the main class Hydrophone. 
-If a hydrophone provides an output different than a regular wav file, functions to read and understand the output are provided. 
+If a hydrophone provides an output different from a regular wav file, functions to read and understand the 
+output are provided. 
 Functions to read the metadata are also provided (which is often encoded in the file name).
 
 
@@ -33,11 +34,14 @@ pip install -r requirements.txt
 ```
 
 ## How to use
-pyhydrophone allows to create an object which represents the hydrophone so you can just pass the hydrophone object from one function to another of your analysis without repeating all the parameters. 
+pyhydrophone allows to create an object which represents the hydrophone so you can just pass the hydrophone object from 
+one function to another of your analysis without repeating all the parameters. 
 
-The object has some extra functions as reading the datetime when it was recorded (usually it is stored in the file name, but some times there is an extra metadata file). 
+The object has some extra functions as reading the datetime when it was recorded (usually it is stored in the file name, 
+but sometimes there is an extra metadata file). 
 
-The normal use would be to create the hydrophone object and then start reading your files. Every time you want to know the datetime of your file you would do:
+The normal use would be to create the hydrophone object and then start reading your files. Every time you want to know 
+the datetime of your file you would do:
 ```
 hydrophone.get_name_date(path_to_your_file) 
 ```
@@ -64,14 +68,18 @@ Provides two classes, SoundTrap and SoundTrapHF.
 
 The date format of the file is assumed to be: *model_name.yymmddHHMMSS.ext*
 
-To create a SoundTrap object, sensitiviy and preamp_gain are read from the configuration file. They do not have to be specified by the user.
+To create a SoundTrap object, sensitiviy and preamp_gain are read from the configuration file. 
+They do not have to be specified by the user.
 (Gain type "High" or "Low" has to be specified).
 A routine for reading the xml file is provided (still some parameters missing).
 
-In a future it will be implemented to read the calibration from oceaninstruments but now the calibration file has to be saved inside the folder "calibration/" under the name of the serial number with THE SAME structure than the one exemplified. 
-(information can be obtained from http://oceaninstruments.azurewebsites.net/App/#/%23)
+If the serial number is passed, the calibration information will automatically be obtained
+from http://oceaninstruments.azurewebsites.net/App/#/%23). 
+If when searching for your serial number there are multiple options, it is important that you specify the model of the 
+hydrophone correctly (as listed in the calibration sheed in oceaninstruments) so the right calibration is selected.
 
-SoundTrapHF (inherited from SoundTrap) comes with a routine to read the *.dwv files from SoundTrap and store all the high frequency clicks as a pandas df to be able to work with them. 
+SoundTrapHF (inherited from SoundTrap) comes with a routine to read the *.dwv files from SoundTrap and store all the 
+high frequency clicks as a pandas df to be able to work with them. 
 
 A folder with several (xml, bcl, dwv) files can be specified and passed to the function.
 
@@ -103,8 +111,9 @@ https://www.bksv.com/en/products/transducers/conditioning/microphone/2690-A-0F2
 
 
 ### RTSys
-Provides a method to read the date from the file name. It also adds a method to compute the power consumtion and plot it
-over time.
+Provides a method to read the date from the file name. 
+It has a method to read the header from a wav file recorded using a RESEA recorder.
+It also adds a method to compute the power consumption and plot it over time.
 https://rtsys.eu/acoustic-recorders
 
 ### EARS
@@ -113,3 +122,6 @@ Just provides a method to read the date time from the name.
 ### MTE AURAL
 Just provides a method to read the date time from the name.
 http://www.multi-electronique.com/files/AURAL/user/AURAL-M2_USER_GUIDE.pdf
+
+### icListen 
+In development. Just provides a method to read the date time from the name for the moment.
