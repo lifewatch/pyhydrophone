@@ -220,7 +220,7 @@ class RTSys(Hydrophone):
 
         return extra_header
 
-    def update_metadata(self, file_path, zip_mode):
+    def update_metadata(self, file_path, zip_mode=False):
         """
         Creates a new RTSys object from an already existing one but updating the metadata from the file header.
         The "mode" parameter stays the same.
