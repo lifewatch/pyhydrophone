@@ -14,8 +14,9 @@ def main(filepath):
     model = 1
     serial_number = 1000
     name = 'RESEA320'
+    mode = 'lowpower'
 
-    rtsys = pyhy.RTSys(name, model, serial_number, sensitivity, preamp_gain, Vpp)
+    rtsys = pyhy.RTSys(name, model, serial_number, sensitivity, preamp_gain, Vpp, mode)
     rtsys.plot_consumption_total_mission(mission_folder_path=filepath)
     print('Total consumption', rtsys.compute_consumption_total_mission(mission_folder_path=filepath))
 

@@ -12,27 +12,27 @@ rtsys_serial_number = 2003001
 rtsys_sens = -180
 rtsys_preamp = 0
 rtsys_vpp = 5
+mode = 'lowpower'
 rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=rtsys_serial_number, sensitivity=rtsys_sens,
-                   preamp_gain=rtsys_preamp, Vpp=rtsys_vpp)
+                   preamp_gain=rtsys_preamp, Vpp=rtsys_vpp, mode=mode)
 
 
 class TestRTSys(unittest.TestCase):
     def setUp(self) -> None:
         self.rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=rtsys_serial_number,
-                                sensitivity=rtsys_sens, preamp_gain=rtsys_preamp, Vpp=rtsys_vpp)
+                                sensitivity=rtsys_sens, preamp_gain=rtsys_preamp, Vpp=rtsys_vpp, mode=mode)
 
     def test_init_from_file(self):
-        rtsys = pyhy.RTSys.from_header(test_file)
+        rtsys = self.rtsys.update_metadata(test_file, zip_mode=False)
         print(rtsys)
 
     def test_header(self):
         for file_path in test_folder.glob('*.wav'):
-            header = rtsys.read_header(file_path)
+            header = self.rtsys.read_header(file_path)
             print(header)
 
     def test_calibration(self):
-        rtsys = pyhy.RTSys.from_header(test_file)
-        rtsys.calibrate(test_file)
+        self.rtsys.calibrate(test_file)
 
 
 if __name__ == '__main__':
