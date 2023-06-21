@@ -26,7 +26,6 @@ class TestHydrophones(unittest.TestCase):
     def test_uaural(self):
         uaural = pyhy.uAural(sensitivity=-180, name='uAural', model='RX', serial_number=1, preamp_gain=12, Vpp=2.0)
 
-
     def test_bk(self):
         bk_model = 'Nexus'
         bk_name = 'B&K'
