@@ -6,3 +6,4 @@ from pyhydrophone.mte import MTE
 from pyhydrophone.rtsys import RTSys
 from pyhydrophone.ears import EARs
 from pyhydrophone.icListen import icListen
+from pyhydrophone.uaural import uAural
