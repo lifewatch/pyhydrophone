@@ -52,10 +52,31 @@ and you would not have to worry about which format the file name has or where th
 For more information about the parameters that each hydrophone takes, see examples folder: 
 
 ```
-upam = pyhy.uPam(name, model, sensitivity, preamp_gain)
 st = pyhy.SoundTrap(name, model, serial_number)
-am = pyhy.AmarG3(name, model, sensitivity, preamp_gain, mems_sensitivity)
-bk = pyhy.BruelKjaer(name, model, amplif)
+
+am = pyhy.AmarG3(name, model, sensitivity, preamp_gain, mems_sensitivity, Vpp)
+
+uaural = pyhy.uAural(sensitivity=-180, name='uAural', model='RX', serial_number=1, preamp_gain=12, Vpp=2.0)
+
+bk_test = pyhy.BruelKjaer(name=bk_name, model=bk_model, preamp_gain=preamp_gain, Vpp=bk_Vpp, serial_number=1,
+                          type_signal='test')
+bk_ref = pyhy.BruelKjaer(name=bk_name, model=bk_model, preamp_gain=preamp_gain, Vpp=bk_Vpp, serial_number=1,
+                         type_signal='ref')
+
+upam = pyhy.uPam(name=upam_name, model=upam_name, serial_number=upam_serial_number,
+                 sensitivity=upam_sensitivity,
+                 preamp_gain=upam_preamp_gain, Vpp=upam_Vpp)
+
+aural = pyhy.MTE(name=aural_name, model=aural_model, serial_number=aural_serial_number,
+                 sensitivity=aural_sensitivity,
+                 preamp_gain=aural_preamp_gain, Vpp=aural_Vpp, string_format='%y%m%d_%H%M%S')
+
+rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=serial_number,
+                   sensitivity=rtsys_sensitivity,
+                   preamp_gain=rtsys_preamp_gain, Vpp=rtsys_Vpp, mode='lowpower', channel='A')
+
+icListen = pyhy.icListen(name=icListen_name, model=icListen_model, serial_number=icListen_serial_number,
+                         sensitivity=icListen_sensitivity, preamp_gain=icListen_preamp_gain, Vpp=icListen_Vpp)
 ```
 
 
@@ -76,7 +97,7 @@ A routine for reading the xml file is provided (still some parameters missing).
 If the serial number is passed, the calibration information will automatically be obtained
 from http://oceaninstruments.azurewebsites.net/App/#/%23). 
 If when searching for your serial number there are multiple options, it is important that you specify the model of the 
-hydrophone correctly (as listed in the calibration sheed in oceaninstruments) so the right calibration is selected.
+hydrophone correctly (as listed in the calibration sheet in oceaninstruments) so the right calibration is selected.
 
 SoundTrapHF (inherited from SoundTrap) comes with a routine to read the *.dwv files from SoundTrap and store all the 
 high frequency clicks as a pandas df to be able to work with them. 
@@ -125,3 +146,6 @@ http://www.multi-electronique.com/files/AURAL/user/AURAL-M2_USER_GUIDE.pdf
 
 ### icListen 
 In development. Just provides a method to read the date time from the name for the moment.
+
+### uAural (micoAural)
+In development. Just provides a method to read the date time from the name for the moment. 
