@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyhydrophone',
-      version='0.1.4',
+      version='0.1.5',
       description='Python scripts to read hydrophones files',
       url='https://github.com/lifewatch/pyhydrophone.git',
       author='Clea Parcerisas',
