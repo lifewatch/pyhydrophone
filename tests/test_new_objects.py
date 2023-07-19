@@ -1,13 +1,10 @@
-"""
-An example of how to use the classes
-"""
-
+import pathlib
 import pyhydrophone as pyhy
-import pyhydrophone.soundtrap
+import unittest
 
-Vpp = 2.0
 
-def main():
+class TestHydrophones(unittest.TestCase):
+    def test_st(self):
         # Hydrophone Setup
         model = 1
         name = 'SoundTrap'
@@ -15,6 +12,7 @@ def main():
 
         st = pyhy.SoundTrap(name, model, serial_number)
 
+    def test_amar(self):
         # Hydrophone Setup
         sensitivity = -199.0
         preamp_gain = 1
@@ -25,8 +23,10 @@ def main():
 
         am = pyhy.AmarG3(name, model, sensitivity, preamp_gain, mems_sensitivity, Vpp)
 
+    def test_uaural(self):
         uaural = pyhy.uAural(sensitivity=-180, name='uAural', model='RX', serial_number=1, preamp_gain=12, Vpp=2.0)
 
+    def test_bk(self):
         bk_model = 'Nexus'
         bk_name = 'B&K'
         preamp_gain = -170
@@ -36,6 +36,7 @@ def main():
         bk_ref = pyhy.BruelKjaer(name=bk_name, model=bk_model, preamp_gain=preamp_gain, Vpp=bk_Vpp, serial_number=1,
                                  type_signal='ref')
 
+    def test_upam(self):
         upam_model = 'uPam'
         upam_name = 'Seiche'
         upam_serial_number = 'SM7213'
@@ -46,6 +47,7 @@ def main():
                          sensitivity=upam_sensitivity,
                          preamp_gain=upam_preamp_gain, Vpp=upam_Vpp)
 
+    def test_aural(self):
         aural_name = 'Aural'
         aural_model = 'M2'
         aural_serial_number = 0
@@ -56,6 +58,7 @@ def main():
                          sensitivity=aural_sensitivity,
                          preamp_gain=aural_preamp_gain, Vpp=aural_Vpp, string_format='%y%m%d_%H%M%S')
 
+    def test_rtsys(self):
         rtsys_name = 'RTSys'
         rtsys_model = 'RESEA320'
         rtsys_sensitivity = -180
@@ -66,6 +69,7 @@ def main():
                            sensitivity=rtsys_sensitivity,
                            preamp_gain=rtsys_preamp_gain, Vpp=rtsys_Vpp, mode='lowpower', channel='A')
 
+    def test_iclisten(self):
         icListen_name = 'icListen'
         icListen_model = 0
         icListen_serial_number = 0
@@ -74,7 +78,3 @@ def main():
         icListen_preamp_gain = 0
         icListen = pyhy.icListen(name=icListen_name, model=icListen_model, serial_number=icListen_serial_number,
                                  sensitivity=icListen_sensitivity, preamp_gain=icListen_preamp_gain, Vpp=icListen_Vpp)
-
-
-if __name__ == '__main__':
-    main()
