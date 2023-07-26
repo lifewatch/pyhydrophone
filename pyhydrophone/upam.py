@@ -24,8 +24,10 @@ class uPam(Hydrophone):
     string_format : string
         Format of the datetime string present in the filename
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f"):
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S_%f",
+                 calibration_file=None, **kwargs):
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
+                         **kwargs)
 
     def get_name_datetime(self, file_name):
         """

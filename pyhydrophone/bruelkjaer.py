@@ -32,9 +32,11 @@ class BruelKjaer(Hydrophone):
         Format of the datetime string present in the filename
     type_signal : str
         Can be 'ref' or 'test'
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
     """
     def __init__(self, name, model, serial_number, preamp_gain, Vpp=2.0, string_format="%y%m%d%H%M%S", type_signal='ref',
-                 max_calibration_time=120.0):
+                 max_calibration_time=120.0, calibration_file=None, **kwargs):
         self.amplif = np.sqrt(10**(preamp_gain/10)) * 1e6
         self.preamp_gain = preamp_gain
         self.type_signal = type_signal
@@ -43,7 +45,7 @@ class BruelKjaer(Hydrophone):
         self.min_duration = 10.0
         
         super().__init__(name, model, serial_number, sensitivity=0.0, preamp_gain=preamp_gain,
-                         Vpp=Vpp, string_format=string_format)
+                         Vpp=Vpp, string_format=string_format, calibration_file=calibration_file, **kwargs)
 
     def __setattr__(self, name, value):
         """
