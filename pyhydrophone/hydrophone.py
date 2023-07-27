@@ -48,7 +48,7 @@ class Hydrophone:
         self.calibration_file = calibration_file
         self.freq_cal = None
         if calibration_file is not None:
-            self.freq_cal = self.get_freq_cal(**kwargs)
+            self.get_freq_cal(**kwargs)
 
     def get_name_datetime(self, date_string):
         """
@@ -169,12 +169,12 @@ class Hydrophone:
         elif self.calibration_file.suffix == '.xlsx':
             df = pd.read_excel(self.calibration_file, header=None)
 
-            df = df.iloc[:, (i for i in range(len(df.columns)) if i == freq_col_id or i == sens_col_id)]
-            df = df[start_data_id:]
-            df = df.dropna(subset=[df.columns[0]])
-            df = df.replace('[A-Za-z:]', '', regex=True).astype(float)
-            df = df.reset_index(drop=True)
-            df.columns = ['frequency', 'sensitivity']
+        df = df.iloc[:, (i for i in range(len(df.columns)) if i == freq_col_id or i == sens_col_id)]
+        df = df[start_data_id:]
+        df = df.dropna(subset=[df.columns[0]])
+        df = df.replace('[A-Za-z:]', '', regex=True).astype(float)
+        df = df.reset_index(drop=True)
+        df.columns = ['frequency', 'sensitivity']
 
         self.freq_cal = df
 
