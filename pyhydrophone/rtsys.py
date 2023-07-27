@@ -238,7 +238,7 @@ class RTSys(Hydrophone):
         header = self.read_header(file_path, zip_mode)
         name, model, serial_number, sens, ampl = self.meta_from_header(header)
         return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0,
-                     mode=self.mode)
+                     mode=self.mode, calibration_file=self.calibration_file)
 
     def meta_from_header(self, header):
         sens = header['hydrophone_sensitivity_%s' % self.channel]
