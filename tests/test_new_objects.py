@@ -9,8 +9,10 @@ class TestHydrophones(unittest.TestCase):
         model = 1
         name = 'SoundTrap'
         serial_number = 67416073
+        calibration_file = pathlib.Path("./test_data/soundtrap/calibration_data.xlsx")
 
-        st = pyhy.SoundTrap(name, model, serial_number)
+        st = pyhy.SoundTrap(name, model, serial_number, calibration_file=calibration_file, freq_col_id=1,
+                            sens_col_id=29, start_data_id=6)
 
     def test_amar(self):
         # Hydrophone Setup
@@ -65,9 +67,11 @@ class TestHydrophones(unittest.TestCase):
         rtsys_preamp_gain = 0
         rtsys_Vpp = 2.0
         serial_number = 3
+        calibration_file = pathlib.Path("./test_data/rtsys/SN130.csv")
         rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=serial_number,
                            sensitivity=rtsys_sensitivity,
-                           preamp_gain=rtsys_preamp_gain, Vpp=rtsys_Vpp, mode='lowpower', channel='A')
+                           preamp_gain=rtsys_preamp_gain, Vpp=rtsys_Vpp, mode='lowpower', channel='A',
+                           calibration_file=calibration_file)
 
     def test_iclisten(self):
         icListen_name = 'icListen'
