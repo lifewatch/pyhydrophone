@@ -2,6 +2,8 @@
 from datetime import datetime
 import numpy as np
 import soundfile as sf
+import pandas as pd
+import scipy.interpolate
 
 try:
     import scipy.signal as sig
@@ -29,8 +31,11 @@ class Hydrophone:
         Voltage peak to peak in volts
     string_format : string
         Format of the datetime string present in the filename
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file=None,
+                 **kwargs):
         self.name = name
         self.model = model
         self.serial_number = serial_number
@@ -40,6 +45,10 @@ class Hydrophone:
         self.string_format = string_format
         self.cal_freq = 250
         self.cal_value = 114
+        self.calibration_file = calibration_file
+        self.freq_cal = None
+        if calibration_file is not None:
+            self.get_freq_cal(**kwargs)
 
     def get_name_datetime(self, date_string):
         """
@@ -137,3 +146,65 @@ class Hydrophone:
         ma = 10 ** (self.preamp_gain / 20.0) * p_ref
         gain_upa = (self.Vpp / 2.0) / (mv * ma)
         return 10 * np.log10(gain_upa**2)
+
+    def get_freq_cal(self, sep=',', freq_col_id=0, sens_col_id=1, start_data_id=0):
+        """
+        Compute a dataframe with all the frequency dependent sensitivity values from the calibration file
+
+        Parameters
+        ----------
+        sep : str
+            Separator between the different columns in csv or txt files
+        freq_col_id : int
+            Id of the frequency column in the file (starts with 0)
+        sens_col_id : int
+            Id of the sensitivity column in the file (starts with 0)
+        start_data_id : int
+            Id of the first line with data (without title) in the file (starts with 0)
+        """
+
+        if self.calibration_file.suffix == '.csv' or self.calibration_file.suffix == '.txt':
+            df = pd.read_csv(self.calibration_file, sep=sep, header=None)
+
+        elif self.calibration_file.suffix == '.xlsx':
+            df = pd.read_excel(self.calibration_file, header=None)
+
+        df = df.iloc[:, (i for i in range(len(df.columns)) if i == freq_col_id or i == sens_col_id)]
+        df = df[start_data_id:]
+        df = df.dropna(subset=[df.columns[0]])
+        df = df.replace('[A-Za-z:]', '', regex=True).astype(float)
+        df = df.reset_index(drop=True)
+        df.columns = ['frequency', 'sensitivity']
+
+        self.freq_cal = df
+
+    def freq_cal_inc(self, frequencies):
+        """
+        Returns a dataframe with the frequency dependent values to increment from the selected frequencies you give from
+        the data you want to increment
+
+        Parameters
+        ----------
+        frequencies : 1d array
+            Frequencies from the data you want to increment with frequency dependent calibration
+
+        Returns
+        -------
+        df_freq_inc : pandas Dataframe
+            Frequency dependent values to increment in your data
+        """
+        df = self.freq_cal
+        min_freq = df['frequency'][0]
+        max_freq = df['frequency'][df.shape[0] - 1]
+        interpol = scipy.interpolate.interp1d(df['frequency'], df['sensitivity'], kind='linear')
+
+        frequencies_below = frequencies.compress(frequencies < min_freq)
+        frequencies_between = frequencies.compress(np.logical_and(frequencies >= min_freq, frequencies <= max_freq))
+        frequencies_above = frequencies.compress(frequencies > max_freq)
+
+        freq_dep_cal = interpol(frequencies_between)
+        freq_cal_inc = freq_dep_cal - (-1 * self.end_to_end_calibration())
+        freq_cal_inc = np.concatenate((np.zeros(frequencies_below.shape), freq_cal_inc, np.zeros(frequencies_above.shape)))
+        df_freq_inc = pd.DataFrame(data=np.vstack((frequencies, freq_cal_inc)).T, columns=['frequency', 'inc_value'])
+
+        return df_freq_inc

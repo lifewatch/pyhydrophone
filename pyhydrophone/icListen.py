@@ -29,9 +29,13 @@ class icListen(Hydrophone):
         Voltage peak to peak in volts
     string_format : string
         Format of the datetime string present in the filename
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
     """
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S"):
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%d_%H%M%S",
+                 calibration_file=None, **kwargs):
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
+                         **kwargs)
 
     def get_name_datetime(self, file_name):
         """

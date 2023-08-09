@@ -29,8 +29,11 @@ class SoundTrap(Hydrophone):
         'High' or 'Low', depending on the settings of the recorder
     string_format : string
         Format of the datetime string present in the filename
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
     """
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S",
+                 calibration_file=None, **kwargs):
         if sensitivity is None:
             try:
                 query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
@@ -63,7 +66,7 @@ class SoundTrap(Hydrophone):
                 raise Exception('Serial number %s is not in the OceanInstruments database!' % serial_number)
 
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0,
-                         Vpp=2.0, string_format=string_format)
+                         Vpp=2.0, string_format=string_format, calibration_file=calibration_file, **kwargs)
 
     @staticmethod
     def read_file_specs(xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):

@@ -6,7 +6,8 @@ from datetime import datetime
 
 
 class AmarG3(Hydrophone):
-    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%dT%H%M%S"):
+    def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format="%Y%m%dT%H%M%S",
+                 calibration_file=None, **kwargs):
         """
         Init an instance of AMARG3
         Parameters
@@ -25,8 +26,11 @@ class AmarG3(Hydrophone):
             Voltage peak to peak in volts
         string_format : string
             Format of the datetime string present in the filename
+        calibration_file : string or Path
+            File where the frequency dependent sensitivity values for the calibration are
         """
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
+                         **kwargs)
 
     def get_name_datetime(self, file_name):
         """

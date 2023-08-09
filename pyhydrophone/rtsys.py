@@ -38,10 +38,13 @@ class RTSys(Hydrophone):
         Channel to process, 'A', 'B', 'C' or 'D'
     string_format : string
         Format of the datetime string present in the filename
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
     """
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode, channel='A',
-                 string_format="%Y-%m-%d_%H-%M-%S"):
-        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format)
+                 string_format="%Y-%m-%d_%H-%M-%S", calibration_file=None):
+        super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
+                         sep=';', freq_col_id=0, sens_col_id=1, start_data_id=0)
         self.cal_freq = 250
         self.cal_value = 114
         self.mode = mode
@@ -235,7 +238,7 @@ class RTSys(Hydrophone):
         header = self.read_header(file_path, zip_mode)
         name, model, serial_number, sens, ampl = self.meta_from_header(header)
         return RTSys(name=name, model=model, serial_number=serial_number, sensitivity=sens, preamp_gain=ampl, Vpp=5.0,
-                     mode=self.mode)
+                     mode=self.mode, calibration_file=self.calibration_file)
 
     def meta_from_header(self, header):
         sens = header['hydrophone_sensitivity_%s' % self.channel]
@@ -274,3 +277,6 @@ class RTSys(Hydrophone):
         self.sensitivity = sens
         self.preamp_gain = ampl
         self.Vpp = 5.0
+
+    def get_freq_cal(self, sep=';', freq_col_id=0, sens_col_id=1, start_data_id=0):
+        super().get_freq_cal(sep=sep, freq_col_id=freq_col_id, sens_col_id=sens_col_id, start_data_id=start_data_id)
