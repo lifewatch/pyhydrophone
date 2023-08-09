@@ -1,4 +1,4 @@
-pandas==1.0.3
+pandas==2.0.2
 requests==2.31.0
-scipy==1.10.0
-soundfile==0.10.3.post1
+scipy==1.9.3
+soundfile==0.12.1

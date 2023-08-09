@@ -221,7 +221,7 @@ class SoundTrapHF(SoundTrap):
                 glob_str = '*.wav'
             for file_name in main_folder_path.glob(glob_str):
                 clicks_file = self.read_HFclicks_file(file_name, zip_mode)
-                clicks = clicks.append(clicks_file)
+                clicks = pd.concat([clicks, clicks_file])
         else:
             if include_dirs:
                 for zipped_dir in main_folder_path.glob('*'):
