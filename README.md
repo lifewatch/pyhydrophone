@@ -19,19 +19,26 @@ output are provided.
 Functions to read the metadata are also provided (which is often encoded in the file name).
 
 
-## How to install
-# Using pip
+## Installation
+### Using pip distribution 
 ```bash
-pip install pyhydrophone
+pip install lifewatch-pypam
 ```
 
-# using git clone
-```bash
-pip install setup.py
-```
-```bash
-pip install -r requirements.txt
-```
+### Using git clone
+
+1. Clone the package
+    ```bash
+    git clone https://github.com/lifewatch/pyhydrophone.git
+    ```
+2. Use poetry to install the project dependencies
+    ```bash
+    poetry install
+    ```
+3. Build the project
+    ```bash
+    poetry build
+    ```
 
 ## How to use
 pyhydrophone allows to create an object which represents the hydrophone so you can just pass the hydrophone object from 
