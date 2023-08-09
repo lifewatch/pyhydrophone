@@ -7,10 +7,10 @@ license = "OSI Approved :: MIT License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8, <3.12.0"
 pandas = "^2.0.2"
 requests = "^2.31.0"
-scipy = "^1.9.3"
+scipy = "1.10.0"
 soundfile = "^0.12.1"
 
 # Testing tools
