@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install libsndfile1        
-          make init-dev
+          poetry install
 
       - name: Run unit tests
         run: |
