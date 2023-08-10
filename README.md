@@ -22,7 +22,7 @@ Functions to read the metadata are also provided (which is often encoded in the 
 ## Installation
 ### Using pip distribution 
 ```bash
-pip install lifewatch-pypam
+pip install pyhydrophone
 ```
 
 ### Using git clone
