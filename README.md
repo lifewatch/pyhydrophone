@@ -156,3 +156,6 @@ In development. Just provides a method to read the date time from the name for t
 
 ### uAural (micoAural)
 In development. Just provides a method to read the date time from the name for the moment. 
+
+## Cite
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7588428.svg)](https://doi.org/10.5281/zenodo.7588428)

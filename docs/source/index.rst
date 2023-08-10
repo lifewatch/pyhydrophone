@@ -50,9 +50,7 @@ Citing pyhydrophone
   If you find this package useful in your research, we would appreciate citations to:
 
 Parcerisas (2023). lifewatch/pyhydrophone: A package to deal with hydrophone data. Zenodo.
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7588428.svg)](https://doi.org/10.5281/zenodo.7588428)
-
-
+https://doi.org/10.5281/zenodo.7588428
 
 
 About the project
