@@ -16,6 +16,7 @@ class BruelKjaer(Hydrophone):
     """
     Init an instance of B&K Nexus.
     Check well the Vpp in case you don't have a reference signal! Specially of the recorder used.
+
     Parameters
     ----------
     name: str
@@ -63,6 +64,7 @@ class BruelKjaer(Hydrophone):
     def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
+
         Parameters
         ----------
         file_name : string
@@ -76,6 +78,7 @@ class BruelKjaer(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string
@@ -93,6 +96,7 @@ class BruelKjaer(Hydrophone):
     def read_start_time_metadata(self, file_path):
         """
         Return the starting time of the file by getting the last modification minus the duration of the file
+
         Parameters
         ----------
         file_path : string or Path
@@ -111,6 +115,7 @@ class BruelKjaer(Hydrophone):
     def update_calibration(self, ref_signal):
         """
         Update the calibration
+
         Parameters
         ----------
         ref_signal : str or Path
@@ -130,6 +135,7 @@ class BruelKjaer(Hydrophone):
         """
         Find the beginning and ending sample of the calibration tone
         Returns start and end points, in seconds
+
         Parameters
         ----------
         file_path : string or Path

@@ -13,6 +13,7 @@ except ModuleNotFoundError:
 class icListen(Hydrophone):
     """
     Init an instance of icListen
+
     Parameters
     ----------
     name: str
@@ -40,6 +41,7 @@ class icListen(Hydrophone):
     def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
+
         Parameters
         ----------
         file_name : string
@@ -54,6 +56,7 @@ class icListen(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string

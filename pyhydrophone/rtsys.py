@@ -18,6 +18,7 @@ except ModuleNotFoundError:
 class RTSys(Hydrophone):
     """
     Init an instance of RTSys
+
     Parameters
     ----------
     name: str
@@ -53,6 +54,7 @@ class RTSys(Hydrophone):
     def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
+
         Parameters
         ----------
         file_name : string
@@ -67,6 +69,7 @@ class RTSys(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string
@@ -105,6 +108,7 @@ class RTSys(Hydrophone):
     def plot_consumption(self, board_file_path):
         """
         Plot the consumption evolution from the board_file_path
+
         Parameters
         ----------
         board_file_path : str or Path
@@ -132,6 +136,7 @@ class RTSys(Hydrophone):
     def compute_consumption(self, board_file_path):
         """
         Calculate the total energy consumption of the file
+
         Parameters
         ----------
         board_file_path : str or Path
@@ -147,6 +152,7 @@ class RTSys(Hydrophone):
     def compute_consumption_total_mission(self, mission_folder_path):
         """
         Calculate the total energy consumption of the file
+
         Parameters
         ----------
         mission_folder_path : str or Path
@@ -168,11 +174,12 @@ class RTSys(Hydrophone):
     @staticmethod
     def read_header(file_path, zip_mode=False):
         """
-        Return the parameters of the *.wav file's header as a dictionary
+        Return the parameters of the .wav file's header as a dictionary
+
         Parameters
         ----------
         file_path: Path or string
-            Path to the *.wav file to read the header from
+            Path to the .wav file to read the header from
 
         Returns
         -------

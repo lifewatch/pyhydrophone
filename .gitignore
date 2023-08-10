@@ -40,6 +40,7 @@ result_images
 # Sphinx documentation
 doc/_build/
 .buildinfo
+docs/source/_auto_examples/
 
 # Jupyter Notebook
 .ipynb_checkpoints
