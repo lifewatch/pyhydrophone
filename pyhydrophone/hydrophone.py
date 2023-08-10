@@ -53,6 +53,7 @@ class Hydrophone:
     def get_name_datetime(self, date_string):
         """
         Read the name of the file and according to the hydrophone protocol get the date
+
         Parameters
         ----------
         date_string : string
@@ -64,6 +65,7 @@ class Hydrophone:
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string
@@ -115,6 +117,7 @@ class Hydrophone:
         """
         Find the beginning and ending sample of the calibration tone
         Returns start and end points, in seconds
+
         Parameters
         ----------
         file_path : string or Path

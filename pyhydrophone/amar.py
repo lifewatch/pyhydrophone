@@ -10,6 +10,7 @@ class AmarG3(Hydrophone):
                  calibration_file=None, **kwargs):
         """
         Init an instance of AMARG3
+
         Parameters
         ----------
         name: str
@@ -35,6 +36,7 @@ class AmarG3(Hydrophone):
     def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
+
         Parameters
         ----------
         file_name : string
@@ -48,6 +50,7 @@ class AmarG3(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string
@@ -67,6 +70,7 @@ class AmarG3MEMS(AmarG3):
     def __init__(self, name, model, serial_number, hydroph_sensitivity, preamp_gain, mems_sensitivity, Vpp):
         """
         Add the MEMS specs
+
         Parameters
         ----------
         name: str

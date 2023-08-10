@@ -7,6 +7,7 @@ from datetime import datetime
 class uPam(Hydrophone):
     """
     Init an instance of Seiche
+
     Parameters
     ----------
     name: str
@@ -32,6 +33,7 @@ class uPam(Hydrophone):
     def get_name_datetime(self, file_name):
         """
         Get the data and time of recording from the name of the file
+
         Parameters
         ----------
         file_name : string
@@ -46,6 +48,7 @@ class uPam(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string

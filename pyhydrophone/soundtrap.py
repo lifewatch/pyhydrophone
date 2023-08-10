@@ -15,6 +15,7 @@ import pathlib
 class SoundTrap(Hydrophone):
     """
     Initialize a SoundTrap instance
+
     Parameters
     ----------
     name: str
@@ -72,6 +73,7 @@ class SoundTrap(Hydrophone):
     def read_file_specs(xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
         """
         Read the specs of the recording from the XML file and save them to the object
+
         Parameters
         ----------
         xmlfile_path : string or path
@@ -114,6 +116,7 @@ class SoundTrap(Hydrophone):
         """
         Get the data and time of recording from the name of the file
         Will convert the local in UTC. It assumes the localtime is the one from the computer
+
         Parameters
         ----------
         file_name : string
@@ -128,6 +131,7 @@ class SoundTrap(Hydrophone):
     def get_xml_utc_datetime(file_path):
         """
         Get the UTC datetime from the xml file
+
         Parameters
         ----------
         file_path : str or Path
@@ -150,6 +154,7 @@ class SoundTrap(Hydrophone):
     def get_new_name(self, filename, new_date):
         """
         Replace the datetime with the appropriate one
+
         Parameters
         ----------
         filename : string
@@ -175,6 +180,7 @@ class SoundTrapHF(SoundTrap):
     def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
         """
         Init a SoundTrap HF reader
+
         Parameters
         ----------
         name: str
@@ -241,6 +247,7 @@ class SoundTrapHF(SoundTrap):
     def read_HFclicks_file(self, wavfile_path, zip_mode=False):
         """
         Read all the clicks stored in a folder with soundtrap files
+
         Parameters
         ----------
         wavfile_path: str
@@ -279,6 +286,7 @@ class SoundTrapHF(SoundTrap):
     def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
         """
         Read the clicks of one soundtrap file
+
         Parameters
         ----------
         bcl_path : str or Path
