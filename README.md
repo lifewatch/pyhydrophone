@@ -4,6 +4,8 @@ Package to make it easier to read different hydrophones' output files and extrac
 
 pyhydrophone helps keeping together all the information of the recorder. 
 
+For more information please visit out [readthedocs page](https://pyhydrophone.readthedocs.io)
+
 Each class represents a different hydrophone. The available ones now are (others will be added): 
 - SoundTrap (OceanInstruments)
 - uPam (Seiche)
