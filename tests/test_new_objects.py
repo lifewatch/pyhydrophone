@@ -11,8 +11,8 @@ class TestHydrophones(unittest.TestCase):
         serial_number = 67416073
         calibration_file = pathlib.Path("./test_data/soundtrap/calibration_data.xlsx")
 
-        st = pyhy.SoundTrap(name, model, serial_number, calibration_file=calibration_file, freq_col_id=1,
-                            sens_col_id=29, start_data_id=6)
+        st = pyhy.SoundTrap(name, model, serial_number, calibration_file=calibration_file, val='sensitivity',
+                            freq_col_id=1, val_col_id=29, start_data_id=6)
 
     def test_amar(self):
         # Hydrophone Setup

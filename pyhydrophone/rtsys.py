@@ -45,7 +45,7 @@ class RTSys(Hydrophone):
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode, channel='A',
                  string_format="%Y-%m-%d_%H-%M-%S", calibration_file=None):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
-                         sep=';', freq_col_id=0, sens_col_id=1, start_data_id=0)
+                         val='sensitivity', sep=';', freq_col_id=0, val_col_id=1, start_data_id=0)
         self.cal_freq = 250
         self.cal_value = 114
         self.mode = mode
@@ -285,5 +285,5 @@ class RTSys(Hydrophone):
         self.preamp_gain = ampl
         self.Vpp = 5.0
 
-    def get_freq_cal(self, sep=';', freq_col_id=0, sens_col_id=1, start_data_id=0):
-        super().get_freq_cal(sep=sep, freq_col_id=freq_col_id, sens_col_id=sens_col_id, start_data_id=start_data_id)
+    def get_freq_cal(self, val='sensitivity', sep=';', freq_col_id=0, val_col_id=1, start_data_id=0):
+        super().get_freq_cal(sep=sep, freq_col_id=freq_col_id, val_col_id=val_col_id, start_data_id=start_data_id)
