@@ -150,18 +150,20 @@ class Hydrophone:
         gain_upa = (self.Vpp / 2.0) / (mv * ma)
         return 10 * np.log10(gain_upa**2)
 
-    def get_freq_cal(self, sep=',', freq_col_id=0, sens_col_id=1, start_data_id=0):
+    def get_freq_cal(self, val='sensitivity', sep=',', freq_col_id=0, val_col_id=1, start_data_id=0):
         """
         Compute a dataframe with all the frequency dependent sensitivity values from the calibration file
 
         Parameters
         ----------
+        val : str
+            Can be 'sensitivity' or 'end_to_end' depending on what are the values in the calibration file
         sep : str
             Separator between the different columns in csv or txt files
         freq_col_id : int
             Id of the frequency column in the file (starts with 0)
-        sens_col_id : int
-            Id of the sensitivity column in the file (starts with 0)
+        val_col_id : int
+            Id of the values column in the file (starts with 0)
         start_data_id : int
             Id of the first line with data (without title) in the file (starts with 0)
         """
@@ -172,16 +174,16 @@ class Hydrophone:
         elif self.calibration_file.suffix == '.xlsx':
             df = pd.read_excel(self.calibration_file, header=None)
 
-        df = df.iloc[:, (i for i in range(len(df.columns)) if i == freq_col_id or i == sens_col_id)]
+        df = df.iloc[:, (i for i in range(len(df.columns)) if i == freq_col_id or i == val_col_id)]
         df = df[start_data_id:]
         df = df.dropna(subset=[df.columns[0]])
         df = df.replace('[A-Za-z:]', '', regex=True).astype(float)
         df = df.reset_index(drop=True)
-        df.columns = ['frequency', 'sensitivity']
+        df.columns = ['frequency', val]
 
         self.freq_cal = df
 
-    def freq_cal_inc(self, frequencies):
+    def freq_cal_inc(self, frequencies, p_ref=1.0):
         """
         Returns a dataframe with the frequency dependent values to increment from the selected frequencies you give from
         the data you want to increment
@@ -190,6 +192,8 @@ class Hydrophone:
         ----------
         frequencies : 1d array
             Frequencies from the data you want to increment with frequency dependent calibration
+        p_ref: float
+            Reference pressure to compute db from
 
         Returns
         -------
@@ -197,16 +201,24 @@ class Hydrophone:
             Frequency dependent values to increment in your data
         """
         df = self.freq_cal
+        val = df.columns[1]
         min_freq = df['frequency'][0]
         max_freq = df['frequency'][df.shape[0] - 1]
-        interpol = scipy.interpolate.interp1d(df['frequency'], df['sensitivity'], kind='linear')
+        interpol = scipy.interpolate.interp1d(df['frequency'], df[val], kind='linear')
 
         frequencies_below = frequencies.compress(frequencies < min_freq)
         frequencies_between = frequencies.compress(np.logical_and(frequencies >= min_freq, frequencies <= max_freq))
         frequencies_above = frequencies.compress(frequencies > max_freq)
 
         freq_dep_cal = interpol(frequencies_between)
-        freq_cal_inc = freq_dep_cal - (-1 * self.end_to_end_calibration())
+
+        if val == 'sensitivity':
+            mv = 10 ** (freq_dep_cal / 20.0) * p_ref
+            ma = 10 ** (self.preamp_gain / 20.0) * p_ref
+            gain_upa = (self.Vpp / 2.0) / (mv * ma)
+            freq_cal_inc = 10 * np.log10(gain_upa**2) - self.end_to_end_calibration()
+        elif val == 'end_to_end':
+            freq_cal_inc = freq_dep_cal - self.end_to_end_calibration()
         freq_cal_inc = np.concatenate((np.zeros(frequencies_below.shape), freq_cal_inc, np.zeros(frequencies_above.shape)))
         df_freq_inc = pd.DataFrame(data=np.vstack((frequencies, freq_cal_inc)).T, columns=['frequency', 'inc_value'])
 
