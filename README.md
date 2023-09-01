@@ -89,6 +89,9 @@ icListen = pyhy.icListen(name=icListen_name, model=icListen_model, serial_number
 ```
 
 
+### My hydrophone is missing! 
+If you have a hydrophone which is missing, or a newer model of a hydrophone where some functions become deprecated, please create an issue and let us know! 
+
 
 ### Hydrophone
 It is the base class, which can be used in case the user is only interested in keeping the parameters together. 
