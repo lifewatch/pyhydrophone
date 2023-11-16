@@ -2,6 +2,8 @@ import pathlib
 import pyhydrophone as pyhy
 import unittest
 
+TEST_DATA_DIR = pathlib.Path(__file__).parent / "test_data"
+
 
 class TestHydrophones(unittest.TestCase):
     def test_st(self):
@@ -9,7 +11,7 @@ class TestHydrophones(unittest.TestCase):
         model = 1
         name = 'SoundTrap'
         serial_number = 67416073
-        calibration_file = pathlib.Path("./test_data/soundtrap/calibration_data.xlsx")
+        calibration_file = TEST_DATA_DIR / "soundtrap" / "calibration_data.xlsx"
 
         st = pyhy.SoundTrap(name, model, serial_number, calibration_file=calibration_file, val='sensitivity',
                             freq_col_id=1, val_col_id=29, start_data_id=6)
@@ -67,7 +69,7 @@ class TestHydrophones(unittest.TestCase):
         rtsys_preamp_gain = 0
         rtsys_Vpp = 2.0
         serial_number = 3
-        calibration_file = pathlib.Path("./test_data/rtsys/SN130.csv")
+        calibration_file = TEST_DATA_DIR / "rtsys" / "SN130.csv"
         rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=serial_number,
                            sensitivity=rtsys_sensitivity,
                            preamp_gain=rtsys_preamp_gain, Vpp=rtsys_Vpp, mode='lowpower', channel='A',
