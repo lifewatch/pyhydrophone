@@ -14,6 +14,7 @@ scipy = "1.10.0"
 soundfile = "^0.12.1"
 
 # Testing tools
+openpyxl = "^3.1.2"
 [tool.poetry.group.test]
 optional = true
 
