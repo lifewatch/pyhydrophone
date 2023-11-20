@@ -3,9 +3,10 @@ import pyhydrophone as pyhy
 import unittest
 import numpy as np
 
+CURRENT_DIR = pathlib.Path(__file__).parent
 
-test_folder = pathlib.Path("./test_data/rtsys/")
-test_file = pathlib.Path("./test_data/rtsys/channelA_2021-10-11_13-11-09.wav")
+test_folder = CURRENT_DIR / "test_data" / "rtsys"
+test_file = test_folder / "channelA_2021-10-11_13-11-09.wav"
 
 rtsys_name = 'RTSys'
 rtsys_model = 'RESEA320'
@@ -14,7 +15,7 @@ rtsys_sens = -180
 rtsys_preamp = 0
 rtsys_vpp = 5
 mode = 'lowpower'
-calibration_file = pathlib.Path("./test_data/rtsys/SN130.csv")
+calibration_file = test_folder / "SN130.csv"
 rtsys = pyhy.RTSys(name=rtsys_name, model=rtsys_model, serial_number=rtsys_serial_number, sensitivity=rtsys_sens,
                    preamp_gain=rtsys_preamp, Vpp=rtsys_vpp, mode=mode, calibration_file=calibration_file)
 
