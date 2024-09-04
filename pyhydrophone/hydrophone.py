@@ -39,9 +39,18 @@ class Hydrophone:
         self.name = name
         self.model = model
         self.serial_number = serial_number
-        self.sensitivity = sensitivity
-        self.preamp_gain = preamp_gain
-        self.Vpp = Vpp
+        try:
+            self.sensitivity = float(sensitivity)
+        except ValueError:
+            raise ValueError("Sensitivity must be an integer or float")
+        try:
+            self.preamp_gain = float(preamp_gain)
+        except ValueError:
+            raise ValueError("preamp_gain must be an integer or float")
+        try:
+            self.Vpp = float(Vpp)
+        except ValueError:
+            raise ValueError("Vpp must be an integer or float")
         self.string_format = string_format
         self.cal_freq = 250
         self.cal_value = 114
