@@ -177,7 +177,8 @@ class SoundTrap(Hydrophone):
 
 
 class SoundTrapHF(SoundTrap):
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S"):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S",
+                 calibration_file=None, **kwargs):
         """
         Init a SoundTrap HF reader
 
@@ -195,8 +196,11 @@ class SoundTrapHF(SoundTrap):
             'High' or 'Low', depending on the settings of the recorder
         string_format : string
             Format of the datetime string present in the filename
+        calibration_file : string or Path
+            File where the frequency dependent sensitivity values for the calibration are
         """
-        super().__init__(name, model, serial_number, sensitivity, gain_type, string_format)
+        super().__init__(name, model, serial_number, sensitivity, gain_type, string_format,
+                         calibration_file=calibration_file, **kwargs)
 
     def read_HFfolder(self, main_folder_path, zip_mode=False, include_dirs=False):
         """
