@@ -1,20 +1,20 @@
 [tool.poetry]
 name = "pyhydrophone"
-version = "0.1.7"
+version = "0.2.0"
 description = "python package to read and calibrate hydrophone data"
 authors = ["Clea Parcerisas <clea.parcerisas@vliz.be>"]
 license = "OSI Approved :: MIT License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.12.0"
+python = ">=3.10, <3.13.0"
 pandas = "^2.0.2"
 requests = "^2.31.0"
-scipy = "1.10.0"
 soundfile = "^0.12.1"
 
 # Testing tools
 openpyxl = "^3.1.2"
+scipy = "^1.15.2"
 [tool.poetry.group.test]
 optional = true
 
@@ -37,7 +37,7 @@ pillow = "^10.0.0"
 matplotlib = "^3.7.2"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 
