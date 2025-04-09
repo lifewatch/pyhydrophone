@@ -37,7 +37,7 @@ pillow = "^10.0.0"
 matplotlib = "^3.7.2"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 
