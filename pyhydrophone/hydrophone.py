@@ -34,6 +34,7 @@ class Hydrophone:
     calibration_file : string or Path
         File where the frequency dependent sensitivity values for the calibration are
     """
+
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file=None,
                  **kwargs):
         self.name = name
@@ -157,7 +158,7 @@ class Hydrophone:
         mv = 10 ** (self.sensitivity / 20.0) * p_ref
         ma = 10 ** (self.preamp_gain / 20.0) * p_ref
         gain_upa = (self.Vpp / 2.0) / (mv * ma)
-        return 10 * np.log10(gain_upa**2)
+        return 10 * np.log10(gain_upa ** 2)
 
     def get_freq_cal(self, val='sensitivity', sep=',', freq_col_id=0, val_col_id=1, start_data_id=0):
         """
@@ -225,10 +226,13 @@ class Hydrophone:
             mv = 10 ** (freq_dep_cal / 20.0) * p_ref
             ma = 10 ** (self.preamp_gain / 20.0) * p_ref
             gain_upa = (self.Vpp / 2.0) / (mv * ma)
-            freq_cal_inc = 10 * np.log10(gain_upa**2) - self.end_to_end_calibration()
+            freq_cal_inc = 10 * np.log10(gain_upa ** 2) - self.end_to_end_calibration()
         elif val == 'end_to_end':
             freq_cal_inc = freq_dep_cal - self.end_to_end_calibration()
-        freq_cal_inc = np.concatenate((np.zeros(frequencies_below.shape), freq_cal_inc, np.zeros(frequencies_above.shape)))
+        else:
+            raise ValueError(f'columns name {val} is not implemented. Only end_to_end or sensitivity are valid values')
+        freq_cal_inc = np.concatenate(
+            (np.zeros(frequencies_below.shape), freq_cal_inc, np.zeros(frequencies_above.shape)))
         df_freq_inc = pd.DataFrame(data=np.vstack((frequencies, freq_cal_inc)).T, columns=['frequency', 'inc_value'])
 
         return df_freq_inc

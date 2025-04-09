@@ -42,6 +42,7 @@ class RTSys(Hydrophone):
     calibration_file : string or Path
         File where the frequency dependent sensitivity values for the calibration are
     """
+
     def __init__(self, name, model, serial_number, sensitivity, preamp_gain, Vpp, mode, channel='A',
                  string_format="%Y-%m-%d_%H-%M-%S", calibration_file=None):
         super().__init__(name, model, serial_number, sensitivity, preamp_gain, Vpp, string_format, calibration_file,
@@ -208,9 +209,9 @@ class RTSys(Hydrophone):
             'active_channels': {'format': 'c', 'start': 100, 'end': 104, 'n': 4}
         }
 
-        if zip_mode==True:
-            path_zip = file_path.split('.zip')[0]+'.zip'
-            file_zip = os.path.relpath(file_path, start=path_zip).replace('\\','/')
+        if zip_mode == True:
+            path_zip = file_path.split('.zip')[0] + '.zip'
+            file_zip = os.path.relpath(file_path, start=path_zip).replace('\\', '/')
             zipFolder = zipfile.ZipFile(path_zip, 'r')
             f = zipFolder.open(file_zip)
         else:
@@ -286,4 +287,5 @@ class RTSys(Hydrophone):
         self.Vpp = 5.0
 
     def get_freq_cal(self, val='sensitivity', sep=';', freq_col_id=0, val_col_id=1, start_data_id=0):
-        super().get_freq_cal(sep=sep, freq_col_id=freq_col_id, val_col_id=val_col_id, start_data_id=start_data_id)
+        super().get_freq_cal(sep=sep, val=val, freq_col_id=freq_col_id, val_col_id=val_col_id,
+                             start_data_id=start_data_id)
