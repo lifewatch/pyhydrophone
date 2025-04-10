@@ -22,15 +22,6 @@ project = 'pyhydrophone'
 copyright = '2023, Clea Parcerisas'
 author = 'Clea Parcerisas'
 
-# The full version, including alpha/beta/rc tags
-# pypam_version = SourceFileLoader('pyhydrophone.version',
-#                                 '../pyhydrophone/version.py').load_module()
-
-# release = pyhydrophone_version.__version__
-# version = pyhydrophone_version.__version__
-release = '0.1.6'
-version = '0.1.6'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -49,7 +40,6 @@ extensions = ['sphinx.ext.autodoc',  # Core Sphinx library for auto html doc gen
               ]
 
 
-html4_writer = True
 autosummary_generate = True
 
 # -- Example Gallery --
