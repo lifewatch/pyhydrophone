@@ -15,7 +15,7 @@ model = 1
 name = 'SoundTrap'
 serial_number = 67416073
 
-st = pyhy.SoundTrap(name, model, serial_number)
+st = pyhy.SoundTrap(name=name, model=model, serial_number=serial_number)
 
 # Hydrophone Setup
 sensitivity = -199.0
@@ -25,7 +25,8 @@ mems_sensitivity = -199.0
 name = 'AmarG3'
 Vpp = 2
 
-am = pyhy.AmarG3(name, model, sensitivity, preamp_gain, mems_sensitivity, Vpp)
+am = pyhy.AmarG3(name=name, model=model, sensitivity=sensitivity, preamp_gain=preamp_gain, serial_number=1,
+                 mems_sensitivity=mems_sensitivity, Vpp=Vpp)
 
 uaural = pyhy.uAural(sensitivity=-180, name='uAural', model='RX', serial_number=1, preamp_gain=12, Vpp=2.0)
 
