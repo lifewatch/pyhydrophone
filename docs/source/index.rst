@@ -1,5 +1,5 @@
-pyhydrophone |version|
-======================
+pyhydrophone
+============
 
 Description
 -----------
