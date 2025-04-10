@@ -26,6 +26,8 @@ class SoundTrap(Hydrophone):
         Serial number of the acoustic recorder. It has to match the one in the calibration file
     sensitivity : float
         Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
+    Vpp : float
+        Value will be ignored and always 2 will be used. Kept for compatibility with other instruments in pipelines
     gain_type : str
         'High' or 'Low', depending on the settings of the recorder
     string_format : string
@@ -33,8 +35,8 @@ class SoundTrap(Hydrophone):
     calibration_file : string or Path
         File where the frequency dependent sensitivity values for the calibration are
     """
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S",
-                 calibration_file=None, **kwargs):
+    def __init__(self, name, model, serial_number, sensitivity=None, Vpp=2, gain_type='High',
+                 string_format="%y%m%d%H%M%S", calibration_file=None,  **kwargs):
         if sensitivity is None:
             try:
                 query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
@@ -177,8 +179,8 @@ class SoundTrap(Hydrophone):
 
 
 class SoundTrapHF(SoundTrap):
-    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', string_format="%y%m%d%H%M%S",
-                 calibration_file=None, **kwargs):
+    def __init__(self, name, model, serial_number, sensitivity=None, gain_type='High', Vpp=2,
+                 string_format="%y%m%d%H%M%S", calibration_file=None, **kwargs):
         """
         Init a SoundTrap HF reader
 
@@ -194,12 +196,15 @@ class SoundTrapHF(SoundTrap):
             Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
         gain_type : str
             'High' or 'Low', depending on the settings of the recorder
+        Vpp : float
+            Value will be ignored and always 2 will be used. Kept for compatibility with other instruments in pipelines
         string_format : string
             Format of the datetime string present in the filename
         calibration_file : string or Path
             File where the frequency dependent sensitivity values for the calibration are
         """
-        super().__init__(name, model, serial_number, sensitivity, gain_type, string_format,
+        super().__init__(name=name, model=model, serial_number=serial_number, sensitivity=sensitivity,
+                         gain_type=gain_type, Vpp=2, string_format=string_format,
                          calibration_file=calibration_file, **kwargs)
 
     def read_HFfolder(self, main_folder_path, zip_mode=False, include_dirs=False):
