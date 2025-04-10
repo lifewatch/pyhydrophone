@@ -8,3 +8,4 @@ sphinx-gallery>=0.13.0
 matplotlib
 scipy
 soundfile
+pandas
