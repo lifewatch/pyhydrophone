@@ -17,7 +17,7 @@ name = 'SoundTrap'
 model = 1
 serial_number = 67416073
 Vpp = 2
-hydrophone = pyhy.SoundTrapHF(name, model, serial_number, Vpp)
+hydrophone = pyhy.SoundTrapHF(name=name, model=model, serial_number=serial_number, Vpp=Vpp)
 
 """
 Detect clicks on sound data

@@ -12,7 +12,6 @@
 
 import os
 import sys
-import warnings
 sys.path.insert(0, os.path.abspath('../..'))
 
 
@@ -28,16 +27,23 @@ author = 'Clea Parcerisas'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',  # Core Sphinx library for auto html doc generation from docstrings
-              'sphinx.ext.autosummary',  # Create neat summary tables for modules/classes/methods etc
-              'sphinx.ext.intersphinx',  # Link to other project's documentation (see mapping below)
-              'sphinx.ext.viewcode',  # Add a link to the Python source code for classes, functions etc.
-              # 'sphinx_autodoc_typehints',  # Automatically document param types (less noise in class signature)
-              'sphinx.ext.githubpages',
-              'numpydoc',  # docstring examples
-              'sphinx.ext.autosectionlabel',
-              'sphinx_gallery.gen_gallery',
-              ]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.githubpages",
+    "sphinx_rtd_theme",
+    "sphinx_copybutton",
+    'sphinx_gallery.gen_gallery',
+]
+
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+def setup(app):
+    config = {
+        # 'url_resolver': lambda url: github_doc_root + url,
+        "auto_toc_tree_section": "Contents",
+        "enable_eval_rst": True,
+    }
 
 
 autosummary_generate = True
@@ -46,13 +52,7 @@ autosummary_generate = True
 sphinx_gallery_conf = {
     'examples_dirs': '../../examples',  # path to your example scripts
     'gallery_dirs': '_auto_examples',  # path to where to save gallery generated output,
-    'capture_repr': (),
-    # define which output is captured https://sphinx-gallery.github.io/stable/configuration.html#capture-repr
-    'ignore_repr_types': r'matplotlib[text, axes]',
 }
-warnings.filterwarnings("ignore", category=UserWarning,
-                        message='Matplotlib is currently using agg, which is a'
-                                ' non-GUI backend, so cannot show the figure.')
 
 numpydoc_show_class_members = False
 
@@ -61,7 +61,6 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
 }
 
-autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autoclass_content = "both"  # Add __init__ doc (ie. params) to class summaries
 # html_show_sourcelink = False  # Remove 'view source code' from top of page (for html, not python)
 autodoc_inherit_docstrings = True  # If no class summary, inherit base class summary
@@ -70,27 +69,18 @@ autodoc_inherit_docstrings = True  # If no class summary, inherit base class sum
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
-
-# -- Options for HTML output -------------------------------------------------
-import sphinx_rtd_theme
-
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+#
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ["_static"]
+html_static_path = ["_static"]
+html_css_files = ["css/greentheme.css"]
 
-# If false, no module index is generated.
-html_domain_indices = True
-# If false, no index is generated.
-html_use_index = True
-html_use_modindex = True
+style_nav_header_background = "#2980B9"
+
+master_doc = "index"

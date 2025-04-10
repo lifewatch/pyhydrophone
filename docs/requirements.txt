@@ -1,0 +1,11 @@
+sphinx>=7.2.6
+ipykernel
+docutils
+sphinx-copybutton>=0.5.2
+sphinx-rtd-theme>=1.3.0
+m2r>=0.2
+sphinx-gallery>=0.13.0
+matplotlib
+scipy
+soundfile
+pandas
