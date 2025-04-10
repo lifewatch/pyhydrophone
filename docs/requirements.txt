@@ -7,3 +7,4 @@ m2r>=0.2
 sphinx-gallery>=0.13.0
 matplotlib
 scipy
+soundfile
