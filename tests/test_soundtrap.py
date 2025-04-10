@@ -19,7 +19,7 @@ serial_number = 67416073
 class TestSoundTrap(unittest.TestCase):
     def test_hf(self):
         # Convert the sound clips to click and save
-        hydrophone = pyhy.SoundTrapHF(name, model, serial_number, gain_type='High')
+        hydrophone = pyhy.SoundTrapHF(name=name, model=model, serial_number=serial_number, gain_type='High')
 
         clicks_df = hydrophone.read_HFfolder(test_files, zip_mode=False, include_dirs=False)
         clicks_df.to_pickle(clicks_output_path)
@@ -28,11 +28,11 @@ class TestSoundTrap(unittest.TestCase):
 
     def test_init_multiple_serial_numbers(self):
         try:
-            pyhy.SoundTrapHF(name, model2, 6042, gain_type='High')
+            pyhy.SoundTrapHF(name=name, model=model2, serial_number=6042, gain_type='High')
         except AttributeError:
             pass
-        pyhy.SoundTrapHF(name, model, 6042, gain_type='High')
-        pyhy.SoundTrapHF(name, model3, 6042, gain_type='High')
+        pyhy.SoundTrapHF(name=name, model=model, serial_number=6042, gain_type='High')
+        pyhy.SoundTrapHF(name=name, model=model3, serial_number=6042, gain_type='High')
 
 
 if __name__ == '__main__':
