@@ -8,6 +8,7 @@ import pandas as pd
 import soundfile as sf
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import xml
 import requests
 import pathlib
 
@@ -314,31 +315,35 @@ class SoundTrapHF(SoundTrap):
         sound_file = sf.SoundFile(dwv_path, 'r')
 
         # click_len has to be checked automatically
-        click_len = self.read_HFparams(xml_path=xml_path)
+        try:
+            click_len = self.read_HFparams(xml_path=xml_path)
+            # Read the info of clicks
+            clicks_info = pd.read_csv(bcl_path)
+            clicks_info = clicks_info[clicks_info['report'] == 'D']
+            clicks_info = clicks_info[clicks_info['state'] == 1]
+            waves = []
 
-        # Read the info of clicks
-        clicks_info = pd.read_csv(bcl_path)
-        clicks_info = clicks_info[clicks_info['report'] == 'D']
-        clicks_info = clicks_info[clicks_info['state'] == 1]
-        waves = []
+            for block in sound_file.blocks(blocksize=click_len):
+                waves.append(block.astype(float))
 
-        for block in sound_file.blocks(blocksize=click_len):
-            waves.append(block.astype(float))
+            print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
 
-        print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
+            if len(waves) < len(clicks_info):
+                # Cut the clicks info if there are not enough snippets
+                clicks_info = clicks_info.loc[0:len(waves)]
 
-        if len(waves) < len(clicks_info):
-            # Cut the clicks info if there are not enough snippets
-            clicks_info = clicks_info.loc[0:len(waves)]
+            clicks_info['wave'] = waves[0:len(clicks_info)]
+            clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
+            clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
+            clicks_info['duration'] = click_len
+            clicks_info['fs'] = sound_file.samplerate
+            clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks'] / 1e6, unit='s')
 
-        clicks_info['wave'] = waves[0:len(clicks_info)]
-        clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
-        clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
-        clicks_info['duration'] = click_len
-        clicks_info['fs'] = sound_file.samplerate
-        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks'] / 1e6, unit='s')
+            return clicks_info.reset_index(drop=True)
+        except xml.etree.ElementTree.ParseError:
+            print(f'XML file {xml_path} could not be parsed, ignoring...')
+            return pd.DataFrame()
 
-        return clicks_info.reset_index(drop=True)
 
     @staticmethod
     def read_HFparams(xml_path):
