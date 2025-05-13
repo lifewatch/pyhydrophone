@@ -254,7 +254,7 @@ class SoundTrapHF(SoundTrap):
 
         return clicks
 
-    def read_HFclicks_file(self, wavfile_path, zip_mode=False):
+    def read_HFclicks_file(self, wavfile_path, zip_mode=False, click_len=None):
         """
         Read all the clicks stored in a folder with soundtrap files
 
@@ -264,6 +264,8 @@ class SoundTrapHF(SoundTrap):
             Wav file path
         zip_mode : boolean
             Set to True if the folders are zipped
+        click_len : int
+            Length of the click. Should be the sum of the parameters PREDET and POSTDET in the XML file of ST
 
         Returns
         -------
@@ -285,7 +287,7 @@ class SoundTrapHF(SoundTrap):
             xml_path = os.path.join(wavfile_path.parent, xml_name)
 
         try:
-            file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path)
+            file_clicks = self._read_HFclicks(bcl_path, dwv_path, xml_path, click_len)
         except FileNotFoundError:
             print(dwv_path, 'has some problem and can not be read')
         if zip_mode:
@@ -293,7 +295,7 @@ class SoundTrapHF(SoundTrap):
         file_clicks['filename'] = str(dwv_path)
         return file_clicks
 
-    def _read_HFclicks(self, bcl_path, dwv_path, xml_path):
+    def _read_HFclicks(self, bcl_path, dwv_path, xml_path, click_len=None):
         """
         Read the clicks of one soundtrap file
 
@@ -317,32 +319,34 @@ class SoundTrapHF(SoundTrap):
         # click_len has to be checked automatically
         try:
             click_len = self.read_HFparams(xml_path=xml_path)
-            # Read the info of clicks
-            clicks_info = pd.read_csv(bcl_path)
-            clicks_info = clicks_info[clicks_info['report'] == 'D']
-            clicks_info = clicks_info[clicks_info['state'] == 1]
-            waves = []
-
-            for block in sound_file.blocks(blocksize=click_len):
-                waves.append(block.astype(float))
-
-            print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
-
-            if len(waves) < len(clicks_info):
-                # Cut the clicks info if there are not enough snippets
-                clicks_info = clicks_info.loc[0:len(waves)]
-
-            clicks_info['wave'] = waves[0:len(clicks_info)]
-            clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
-            clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
-            clicks_info['duration'] = click_len
-            clicks_info['fs'] = sound_file.samplerate
-            clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks'] / 1e6, unit='s')
-
-            return clicks_info.reset_index(drop=True)
         except xml.etree.ElementTree.ParseError:
-            print(f'XML file {xml_path} could not be parsed, ignoring...')
-            return pd.DataFrame()
+            if click_len is None:
+                raise Exception(f'XML file {xml_path} could not be parsed, and click_len parameter is not set. '
+                                f'Please provide the click_len parameter...')
+
+        # Read the info of clicks
+        clicks_info = pd.read_csv(bcl_path)
+        clicks_info = clicks_info[clicks_info['report'] == 'D']
+        clicks_info = clicks_info[clicks_info['state'] == 1]
+        waves = []
+
+        for block in sound_file.blocks(blocksize=click_len):
+            waves.append(block.astype(float))
+
+        print(dwv_path, 'bcl:', len(clicks_info), 'dwv:', len(waves))
+
+        if len(waves) < len(clicks_info):
+            # Cut the clicks info if there are not enough snippets
+            clicks_info = clicks_info.loc[0:len(waves)]
+
+        clicks_info['wave'] = waves[0:len(clicks_info)]
+        clicks_info['start_sample'] = np.arange(len(clicks_info)) * click_len
+        clicks_info['end_sample'] = clicks_info['start_sample'] + click_len
+        clicks_info['duration'] = click_len
+        clicks_info['fs'] = sound_file.samplerate
+        clicks_info['datetime'] = pd.to_datetime(clicks_info['rtime'] + clicks_info['mticks'] / 1e6, unit='s')
+
+        return clicks_info.reset_index(drop=True)
 
 
     @staticmethod
