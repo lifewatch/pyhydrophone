@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyhydrophone"
-version = "0.2.0"
+version = "0.3.0"
 description = "python package to read and calibrate hydrophone data"
 authors = ["Clea Parcerisas <clea.parcerisas@vliz.be>"]
 license = "OSI Approved :: MIT License"
