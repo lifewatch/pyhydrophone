@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 import xml
 import requests
 import pathlib
+import json
 
 
 class SoundTrap(Hydrophone):
@@ -38,39 +39,71 @@ class SoundTrap(Hydrophone):
     """
     def __init__(self, name, model, serial_number, sensitivity=None, Vpp=2, gain_type='High',
                  string_format="%y%m%d%H%M%S", calibration_file=None,  **kwargs):
+        self.azures_api_url = "https://www.data.oceaninstruments.co.nz/api/1.1"
         if sensitivity is None:
             try:
-                query = 'http://oceaninstruments.azurewebsites.net/api/Devices/Search/%s' % serial_number
-                response = requests.get(query).json()
-                if len(response) > 1:
-                    models_available = {}
-                    for device in response:
-                        if device['serialNo'] == str(serial_number):
-                            models_available[device['modelName']] = device['deviceId']
-
-                    if model not in models_available.keys():
-                        raise AttributeError('There are multiple instruments with serial number %s. Set the model '
-                                             'parameter to match the model specified in the SoundTrap calibration '
-                                             'webpage to chose the correct one: %s' %
-                                             (serial_number, models_available.keys()))
-                    else:
-                        device_id = models_available[model]
-                else:
-                    # Ignore the model name if there is only one serial number
-                    device_id = response[0]['deviceId']
-                query = 'http://oceaninstruments.azurewebsites.net/api/Calibrations/Device/%s' % device_id
-                response = requests.get(query).json()[0]
+                response = self._get_calibration_by_serial(serial_number)
                 if gain_type == 'High':
-                    sensitivity = -response['highFreq']
+                    sensitivity = response['High Gain']
                 elif gain_type == 'Low':
-                    sensitivity = -response['lowFreq']
+                    sensitivity = response['Low Gain']
                 else:
-                    raise Exception('Gain type %s is not implemented!' % gain_type)
+                    raise Exception('Gain type %s is not implemented! Only High and Low are the options.' % gain_type)
+                if sensitivity > 0: 
+                    sensitivity = -sensitivity
             except ConnectionError:
                 raise Exception('Serial number %s is not in the OceanInstruments database!' % serial_number)
 
+
         super().__init__(name, model, serial_number=serial_number, sensitivity=sensitivity, preamp_gain=0.0,
                          Vpp=2.0, string_format=string_format, calibration_file=calibration_file, **kwargs)
+
+    def _search_in_azures_db(self, table_name, key, id_to_search): 
+        url = f"{self.azures_api_url}/obj/{table_name}"
+
+        constraints = [
+            {
+                "key": str(key),
+                "constraint_type": "equals",
+                "value": str(id_to_search)
+            }
+        ]
+
+        params = {"constraints": json.dumps(constraints)}
+
+        response = requests.get(url, params=params)
+        data = response.json()
+        results = data.get("response", {}).get("results", [])
+
+        if results:
+            return results
+
+        return None
+
+    def _get_device_by_serial(self, device_serial):
+        """
+        Retrieve a device record by Device Serial number.
+
+        Parameters
+        ----------
+        device_serial : str or int
+            Device serial number (e.g. 5386)
+
+        Returns
+        -------
+        dict or None
+            Matching device record
+        """
+        device = self._search_in_azures_db(table_name='Hydrophone', key='Device Serial', id_to_search=device_serial)
+        device_id = device[0]['Serial']
+
+        return device_id
+
+    def _get_calibration_by_serial(self, device_serial): 
+        hp_device = self._get_device_by_serial(device_serial=device_serial)
+        cali = self._search_in_azures_db(table_name='Calibration', key='Hydrophone Serial', id_to_search=hp_device)
+        return cali[0]
+
 
     @staticmethod
     def read_file_specs(xmlfile_path, last_gain, date_format='%Y-%m-%dT%H:%M:%S'):
@@ -369,3 +402,37 @@ class SoundTrapHF(SoundTrap):
         clip_len = int(tree.find('CFG/PREDET').text) + int(tree.find('CFG/POSTDET').text)
 
         return clip_len
+
+
+class SoundTrap640(SoundTrap): 
+    """
+    Initialize a SoundTrap instance
+
+    Parameters
+    ----------
+    name: str
+        Name of the acoustic recorder
+    model: str or int
+        Model of the acoustic recorder
+    serial_number : str or int
+        Serial number of the acoustic recorder. It has to match the one in the calibration file
+    sensitivity : float
+        Sensitivity of the acoustic recorder in db. If None the one from the calibration file will be read
+    Vpp : float
+        Value will be ignored and always 2 will be used. Kept for compatibility with other instruments in pipelines
+    channel : str
+        name of the channel for this hydrophone
+    string_format : string
+        Format of the datetime string present in the filename
+    calibration_file : string or Path
+        File where the frequency dependent sensitivity values for the calibration are
+    """
+    def __init__(self, name, model, serial_number, sensitivity=None, channel='A', string_format="%y%m%d%H%M%S", calibration_file=None, **kwargs):
+        if sensitivity is None:
+            raise ValueError(f'Missing sensitivity value for channel {channel}. Model 640 does not provide integrated hydrophones')
+        self.channel = channel
+        sensitivity += -3.5
+
+        super().__init__(name=name, model=model, serial_number=serial_number, sensitivity=sensitivity,
+                         gain_type=None, Vpp=2.0, string_format=string_format,
+                         calibration_file=calibration_file, **kwargs)

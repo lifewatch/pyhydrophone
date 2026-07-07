@@ -15,6 +15,11 @@ model2 = 'SoundTrap 500 HF'
 model3 = 'ST500 Hydrophone (HF)'
 serial_number = 67416073
 
+model4 = 'SoundTrap 640 HF'
+serial_number4 = 9135
+channel4 = 'A'
+sensitivity4 = -180
+
 
 class TestSoundTrap(unittest.TestCase):
     def test_hf(self):
@@ -31,8 +36,16 @@ class TestSoundTrap(unittest.TestCase):
             pyhy.SoundTrapHF(name=name, model=model2, serial_number=6042, gain_type='High')
         except AttributeError:
             pass
-        pyhy.SoundTrapHF(name=name, model=model, serial_number=6042, gain_type='High')
-        pyhy.SoundTrapHF(name=name, model=model3, serial_number=6042, gain_type='High')
+
+        st1 = pyhy.SoundTrapHF(name=name, model=model, serial_number=6042, gain_type='High')
+        st2 = pyhy.SoundTrapHF(name=name, model=model3, serial_number='6042HP', gain_type='High')
+
+        assert st1.sensitivity == -176.8
+        assert st2.sensitivity == -178.8
+
+    
+    def test_init_640_models(self): 
+        pyhy.SoundTrap640(name=name, model=model4, serial_number=serial_number4, sensitivity=sensitivity4, channel=channel4)
 
 
 if __name__ == '__main__':
