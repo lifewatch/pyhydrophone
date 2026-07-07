@@ -62,3 +62,5 @@ docs/source/_auto_examples/
 
 tests/test_data/data_exploration
 pypam.egg-info/
+
+poetry.lock
