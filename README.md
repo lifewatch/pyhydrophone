@@ -33,13 +33,13 @@ pip install pyhydrophone
     ```bash
     git clone https://github.com/lifewatch/pyhydrophone.git
     ```
-2. Use poetry to install the project dependencies
+2. Use uv to install the project dependencies in a dedicated virtual environment
     ```bash
-    poetry install
+    uv sync
     ```
 3. Build the project
     ```bash
-    poetry build
+    uv build
     ```
 
 ## How to use
