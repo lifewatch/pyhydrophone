@@ -3,7 +3,7 @@ name = "pyhydrophone"
 version = "0.4.0"
 description = "python package to read and calibrate hydrophone data"
 authors = [{ name = "Clea Parcerisas", email = "clea.parcerisas@vliz.be" }]
-requires-python = ">=3.10, <3.13.0"
+requires-python = ">=3.10, <=3.14.0"
 readme = "README.md"
 license = "MIT"
 classifiers = [
@@ -11,6 +11,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "pandas>=2.0.2,<3",
