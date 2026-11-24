@@ -20,15 +20,15 @@ Using git clone
     git clone https://github.com/lifewatch/pyhydrophone.git
 
 
-2. Use poetry to install the project dependencies
+2. Use uv to install the project dependencies in a dedicated virtual environment
 
 .. code-block::
 
-    poetry install
+    uv sync
 
 
 3. Build the project
 
 .. code-block::
 
-    poetry build
+    uv build
