@@ -57,3 +57,8 @@ build-backend = "uv_build"
 [tool.pytest.ini_options]
 testpaths = ["tests",]
 pythonpath = ["."]
+
+[tool.uv]
+constraint-dependencies = [
+    "fonttools<4.69",
+]
